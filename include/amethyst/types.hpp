@@ -1,0 +1,19 @@
+#pragma once
+
+#include <functional>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace amy {
+using uc = unsigned char;
+using us = unsigned short;
+using ui = unsigned int;
+using ull = unsigned long long;
+using str = std::string;
+using cstr = const std::string;
+template <typename T> using vec = std::vector<T>;
+template <typename T>
+using cvec = const std::vector<T>;
+}  // namespace amy

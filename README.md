@@ -1,3 +1,3 @@
 # amethyst
 
-3ds high performance rendering lib
+2d Renderer Library made for ReCraft3DS based on palladium.
