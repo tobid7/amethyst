@@ -1,0 +1,3 @@
+[submodule "vendor/libpicasso"]
+	path = vendor/libpicasso
+	url = https://github.com/npid7/libpicasso.git

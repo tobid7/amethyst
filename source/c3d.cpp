@@ -2,6 +2,7 @@
 
 #include <amethyst/c3d.hpp>
 #include <amethyst/utils.hpp>
+#include <pica.hpp>
 
 namespace amy {
 
@@ -40,11 +41,20 @@ void c3d::shader::load(const std::string& path) {
   if (!code.size()) {
     throw std::runtime_error("[amy] shader: unable to load " + path);
   }
-  m_code = DVLB_ParseFile((u32*)&code[0], code.size());
+  load(code);
+}
+
+void c3d::shader::load(const std::vector<uc>& data) {
+  m_code = DVLB_ParseFile((u32*)&data[0], data.size());
   shaderProgramInit(&m_program);
   shaderProgramSetVsh(&m_program, &m_code->DVLE[0]);
   C3D_BindProgram(&m_program);
   AttrInfo_Init(&m_info);
+}
+
+void c3d::shader::compile(const std::string& code) {
+  auto ret = Pica::AssembleCode(code.c_str());
+  load(ret);
 }
 
 void c3d::shader::use() {
@@ -54,6 +64,14 @@ void c3d::shader::use() {
 
 void c3d::shader::setMat4(int loc, C3D_Mtx* m) {
   C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, loc, m);
+}
+
+void c3d::shader::setMat4(int loc, const mat4& m) {
+  C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, loc, (const C3D_Mtx*)&m);
+}
+
+int c3d::shader::loc(const std::string& name) {
+  return shaderInstanceGetUniformLocation(m_program.vertexShader, name.c_str());
 }
 
 void c3d::shader::input(int reg, GPU_FORMATS f, int num) {
@@ -70,5 +88,14 @@ void c3d::frag::func(C3D_TexEnvMode mode, GPU_COMBINEFUNC func) {
 void c3d::frag::edit(int id) {
   m_env = C3D_GetTexEnv(id);
   C3D_TexEnvInit(m_env);
+}
+
+void c3d::drawArrays(int start, int count, GPU_Primitive_t prim) {
+  C3D_DrawArrays(prim, start, count);
+}
+
+void c3d::drawElements(int count, const void* idx_ptr, int type,
+                       GPU_Primitive_t prim) {
+  C3D_DrawElements(prim, count, type, idx_ptr);
 }
 }  // namespace amy

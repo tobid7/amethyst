@@ -4,6 +4,8 @@
 #include <citro3d.h>
 
 #include <amethyst/asset.hpp>
+#include <amethyst/maths/mat.hpp>
+#include <amethyst/types.hpp>
 #include <string>
 
 namespace amy {
@@ -36,13 +38,18 @@ class c3d {
   class shader : public asset {
    public:
     shader(const std::string& path);
+    shader() {}
     ~shader();
 
     void load(const std::string& path);
+    void load(const std::vector<uc>& data);
+    void compile(const std::string& code);
     void use();
     void input(int reg, GPU_FORMATS f, int num);
     void input(GPU_FORMATS f, int num) { input(m_reg++, f, num); }
     void setMat4(int loc, C3D_Mtx* m);
+    void setMat4(int loc, const mat4& m);
+    int loc(const std::string& name);
 
    private:
     C3D_AttrInfo m_info;
@@ -72,5 +79,9 @@ class c3d {
   static void endFrame();
   static screen* createScreen(gfxScreen_t screen, gfx3dSide_t side = GFX_LEFT);
   static void deleteScreen(screen* screen);
+  static void drawArrays(int start, int count,
+                         GPU_Primitive_t prim = GPU_TRIANGLES);
+  static void drawElements(int count, const void* idx_ptr, int type = GPU_SHORT,
+                           GPU_Primitive_t prim = GPU_TRIANGLES);
 };
 }  // namespace amy
