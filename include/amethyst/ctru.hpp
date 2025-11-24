@@ -1,5 +1,7 @@
 #pragma once
 
+#include <amethyst/types.hpp>
+
 namespace amy {
 namespace ctru {
 enum services {
@@ -10,5 +12,6 @@ enum services {
   def = romfs | gfx_def
 };
 void init(unsigned int srv = def);
+ull getTime();
 }  // namespace ctru
 }  // namespace amy

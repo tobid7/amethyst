@@ -1,6 +1,7 @@
 #pragma once
 
 #include <amethyst/asset.hpp>
+#include <amethyst/types.hpp>
 
 namespace amy {
 class app {
@@ -8,8 +9,12 @@ class app {
   app() {}
   ~app() {}
 
+  virtual void main() {}
   void run();
-  private:
-  
+  double delta() const { return m_delta; }
+
+ private:
+  ull m_last;
+  double m_delta;
 };
 }  // namespace amy

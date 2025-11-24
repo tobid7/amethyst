@@ -1,2 +1,4 @@
 build/
 *.shbin
+.vscode
+compile_commands.json

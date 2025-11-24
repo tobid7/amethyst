@@ -3,12 +3,11 @@
 #include <string>
 
 namespace amy {
-    class gtrace {
-        public:
-        gtrace() = default;
-        ~gtrace() = default;
+class gtrace {
+ public:
+  gtrace() = default;
+  ~gtrace() = default;
 
-        private:
-        
-    };
-}
+ private:
+};
+}  // namespace amy

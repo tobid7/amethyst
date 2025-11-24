@@ -1,5 +1,6 @@
 #pragma once
 
+#include <amethyst/app.hpp>
 #include <amethyst/assets.hpp>
 #include <amethyst/c3d.hpp>
 #include <amethyst/ctru.hpp>

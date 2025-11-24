@@ -13,7 +13,11 @@ using ui = unsigned int;
 using ull = unsigned long long;
 using str = std::string;
 using cstr = const std::string;
-template <typename T> using vec = std::vector<T>;
+using ksr = const std::string&;
+template <typename T>
+using vec = std::vector<T>;
 template <typename T>
 using cvec = const std::vector<T>;
+template <typename T>
+using up = std::unique_ptr<T>;
 }  // namespace amy

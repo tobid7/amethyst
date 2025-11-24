@@ -2,12 +2,16 @@ cmake_minimum_required(VERSION 3.22)
 
 project(amethyst)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+
 option(AMY_BUILD_3DS "Build for 3ds" ON)
 option(AMY_GOD_DEV "Turn this on if you think you are god" OFF)
 
 add_subdirectory(vendor/libpicasso)
 
 add_library(${PROJECT_NAME} STATIC
+    source/app.cpp
     source/amethyst.cpp
     source/image.cpp
     source/renderer.cpp

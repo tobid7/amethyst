@@ -28,8 +28,7 @@ void image::load(cstr& path) {
 
 void image::load(const std::vector<uc>& data) {
   int c = 0;
-  uc* buf =
-      stbi_load_from_memory(data.data(), data.size(), &m_w, &m_h, &c, 4);
+  uc* buf = stbi_load_from_memory(data.data(), data.size(), &m_w, &m_h, &c, 4);
   if (c == 3) {
     // Releoading the Image with tree channels requestet
     // Still need to find a better way for this :(
@@ -107,8 +106,7 @@ void image::convert(image& img, const format& dst) {
     convert(img, RGB565);
   } else if (img.m_fmt == RGB && dst == RGB565) {
     // Inlined make pixel 565 func
-    auto f = [](uc r, uc g,
-                uc b) -> unsigned short {
+    auto f = [](uc r, uc g, uc b) -> unsigned short {
       unsigned short _r = (r >> 3);
       unsigned short _g = (g >> 2);
       unsigned short _b = (b >> 3);
@@ -129,8 +127,7 @@ void image::convert(image& img, const format& dst) {
   }
 }
 
-void image::retile(image& img,
-                   std::function<ui(int x, int y, int w)> src,
+void image::retile(image& img, std::function<ui(int x, int y, int w)> src,
                    std::function<ui(int x, int y, int w)> dst) {
   std::vector<uc> cpy = img.m_buffer;
   /** could use fmt here but for 565 that woulnt work as it is not supported by

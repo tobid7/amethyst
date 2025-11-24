@@ -12,5 +12,6 @@ void init(unsigned int srvs) {
     gfxInitDefault();
   }
 }
+ull getTime() { return osGetTime(); }
 }  // namespace ctru
 }  // namespace amy

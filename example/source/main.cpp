@@ -1,5 +1,6 @@
-#include "amethyst/iron.hpp"
 #include <amethyst.hpp>
+
+#include "amethyst/iron.hpp"
 
 const char* shader_ = R"(; Example PICA200 vertex shader
 
@@ -41,20 +42,35 @@ const char* shader_ = R"(; Example PICA200 vertex shader
 .end
 )";
 
-static C3D_Mtx projection;
+class example : public amy::app {
+ public:
+  example() {
+    amy::ctru::init();
+    amy::c3d::init();
+    m_top = amy::c3d::createScreen(GFX_TOP, GFX_LEFT);
+    amy::iron::init();
+  };
+  ~example() {
+    amy::c3d::deleteScreen(m_top);
+    amy::c3d::deinit();
+  };
+
+  void main() {
+    amy::c3d::startFrame();
+    m_top->startDraw();
+    m_top->clear();
+    amy::iron::newFrame();
+    amy::iron::drawOn(m_top);
+    amy::c3d::endFrame();
+  }
+
+ private:
+  amy::c3d::screen* m_top = nullptr;
+};
 
 int main() {
   amy::registerCxxExceptionHandler();
-  amy::ctru::init();
-  amy::c3d::init();
-  auto top = amy::c3d::createScreen(GFX_TOP, GFX_LEFT);
-  amy::iron::init();
-  while (aptMainLoop()) {
-    amy::c3d::startFrame();
-    top->startDraw();
-    top->clear();
-    amy::c3d::endFrame();
-  }
-  amy::c3d::deleteScreen(top);
+  example app;
+  app.run();
   return 0;
 }
