@@ -46,10 +46,17 @@ class example : public amy::app {
  public:
   example() {
     amy::ctru::init();
+    consoleInit(GFX_BOTTOM, NULL);
     amy::c3d::init();
     m_top = amy::c3d::createScreen(GFX_TOP, GFX_LEFT);
     amy::iron::init();
-  };
+    dl = new amy::iron::drawlist();
+    dl->drawSolid();
+    // throw std::runtime_error(std::format(
+    //     "solid tex: {:#08x}\nsize: {}\nptr: {:#08x}",
+    //     (amy::ui)amy::iron::whiteTex(), amy::iron::whiteTex()->size(),
+    //     (amy::ui)amy::iron::whiteTex()->ptr()));
+  }; 
   ~example() {
     amy::c3d::deleteScreen(m_top);
     amy::c3d::deinit();
@@ -59,13 +66,17 @@ class example : public amy::app {
     amy::c3d::startFrame();
     m_top->startDraw();
     m_top->clear();
+    dl->drawRectFilled(0, 50, 0xff00ff00);
     amy::iron::newFrame();
     amy::iron::drawOn(m_top);
+    amy::iron::draw(dl->data());
+    dl->clear();
     amy::c3d::endFrame();
   }
 
  private:
   amy::c3d::screen* m_top = nullptr;
+  amy::iron::drawlist* dl = nullptr;
 };
 
 int main() {

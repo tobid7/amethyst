@@ -1,10 +1,13 @@
 #pragma once
 
+#include <algorithm>
 #include <amethyst/maths/vec.hpp>
 #include <cinttypes>
 #include <functional>
 #include <map>
 #include <memory>
+#include <numbers>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <vector>

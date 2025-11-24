@@ -83,7 +83,8 @@ class c3d {
   static void deleteScreen(screen* screen);
   static void drawArrays(int start, int count,
                          GPU_Primitive_t prim = GPU_TRIANGLES);
-  static void drawElements(int count, const void* idx_ptr, int type = GPU_SHORT,
+  static void drawElements(int count, const void* idx_ptr,
+                           int type = C3D_UNSIGNED_SHORT,
                            GPU_Primitive_t prim = GPU_TRIANGLES);
   static void depthTest(bool on, GPU_TESTFUNC func = GPU_GREATER,
                         GPU_WRITEMASK mask = GPU_WRITE_ALL);
