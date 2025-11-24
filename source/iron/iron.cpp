@@ -60,6 +60,41 @@ void iron::drawOn(c3d::screen* screen) {
   m_shader->setMat4(uLocProj, m_mtx);
 }
 
+void iron::draw(const std::vector<iron::command::ref>& data) {
+  // disable depthtest cause we have no z buffer
+  c3d::depthTest(false);
+  fragConfig();
+  size_t i = 0;
+  while (i < data.size()) {
+    texture* tex = data[i]->tex;
+    if (!tex) {
+      i++;
+      continue;
+    }
+    auto scissorOn = data[i]->scissorOn;
+    auto scissor = data[i]->scissorRect;
+    auto start = i;
+    // Loop until a statgechange and copy all data into vertex/index buf
+    while (i < data.size() && scissorOn == data[i]->scissorOn &&
+           scissor == data[i]->scissorRect && tex == data[i]->tex) {
+      auto c = data[i].get();
+      for (int j = 0; j < c->indexBuf.size(); j++) {
+        m_ibuf[m_idx++] = m_vtx + c->indexBuf[i];
+      }
+      for (int j = 0; j < c->vertexBuf.size(); j++) {
+        m_vbuf[m_vtx++] = c->vertexBuf[i];
+      }
+      i++;
+    }
+    ///// SCISSOR LOGIC BEG /////
+    ///// SCISSOR LOGIC END /////
+    tex->bind();
+    c3d::bufCfg<3>(m_vbuf.data(), sizeof(vertex));
+    c3d::drawElements(i - start, m_ibuf.data() + start);
+  }
+  c3d::depthTest(true);
+}
+
 void iron::setupShader() {
   m_shader = new c3d::shader();
   m_shader->compile(__ironshader__);

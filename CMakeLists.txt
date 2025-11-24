@@ -19,7 +19,8 @@ add_library(${PROJECT_NAME} STATIC
     source/utils.cpp
     source/c3d.cpp
     source/ctru.cpp
-    source/iron.cpp
+    source/iron/iron.cpp
+    source/iron/drawlist.cpp
     source/maths/mat.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC include)

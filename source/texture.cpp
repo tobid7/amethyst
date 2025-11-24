@@ -51,24 +51,24 @@ void texture::load(cstr& path) {
   }
 
   int bpp = img.bpp();
-  m_w = img.width();
-  if (utils::isSingleBitNum(m_w)) {
-    m_w = utils::nextPow2(m_w);
+  m_size.x = img.width();
+  if (utils::isSingleBitNum(m_size.x)) {
+    m_size.x = utils::nextPow2(m_size.x);
   }
-  m_h = img.width();
-  if (utils::isSingleBitNum(m_h)) {
-    m_h = utils::nextPow2(m_h);
+  m_size.y = img.height();
+  if (utils::isSingleBitNum(m_size.y)) {
+    m_size.y = utils::nextPow2(m_size.y);
   }
   auto filter = GPU_NEAREST;
   auto format = image2TexFmt(img.fmt());
-  C3D_TexInit(&m_tex, (u16)m_w, (u16)m_h, format);
+  C3D_TexInit(&m_tex, (u16)m_size.x, (u16)m_size.y, format);
   C3D_TexSetFilter(&m_tex, filter, filter);
   // Using std::fill_n instead cause i hate this error lines
   // under the memset func in my editor
   std::fill_n((unsigned char*)m_tex.data, m_tex.size, 0);
   for (int x = 0; x < img.width(); x++) {
     for (int y = 0; y < img.height(); y++) {
-      int dst_pos = tile3dsTex(x, y, m_w) * bpp;
+      int dst_pos = tile3dsTex(x, y, m_size.x) * bpp;
       int src_pos = (y * img.width() + x) * bpp;
       /// Best idea i had
       for (int i = 0; i < bpp; i++) {
@@ -81,4 +81,6 @@ void texture::load(cstr& path) {
   C3D_TexSetWrap(&m_tex, GPU_REPEAT, GPU_REPEAT);
   m_loaded = true;
 }
+
+void texture::bind(int reg) { C3D_TexBind(reg, &m_tex); }
 }  // namespace amy

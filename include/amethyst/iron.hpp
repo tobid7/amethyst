@@ -26,6 +26,7 @@ class iron {
     u32 color = 0;
   };
   class command {
+   public:
     command() = default;
     using ref = up<command>;
     command& add(const u16& idx) {
@@ -58,7 +59,7 @@ class iron {
 
     void merge(drawlist* list);
     command::ref newCommand();
-    void push(commad* cmd);
+    void push(command ::ref cmd);
     void clear();
 
     void drawSolid();
@@ -74,7 +75,7 @@ class iron {
   static void init();
   static void newFrame();
   static void drawOn(c3d::screen* screen);
-  static void draw(const std::vector<command>& data);
+  static void draw(const std::vector<command::ref>& data);
 
  private:
   static void setupShader();

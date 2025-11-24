@@ -5,6 +5,7 @@
 
 #include <amethyst/asset.hpp>
 #include <amethyst/maths/mat.hpp>
+#include <amethyst/maths/vec.hpp>
 #include <amethyst/types.hpp>
 #include <string>
 
@@ -26,6 +27,7 @@ class c3d {
 
     int width() const { return m_width; }
     int height() const { return m_height; }
+    ivec2 size() const { return ivec2(m_width, m_height); }
     void clear() { C3D_RenderTargetClear(m_target, C3D_CLEAR_ALL, 0, 0); }
     void startDraw() { C3D_FrameDrawOn(m_target); }
 
@@ -83,5 +85,57 @@ class c3d {
                          GPU_Primitive_t prim = GPU_TRIANGLES);
   static void drawElements(int count, const void* idx_ptr, int type = GPU_SHORT,
                            GPU_Primitive_t prim = GPU_TRIANGLES);
+  static void depthTest(bool on, GPU_TESTFUNC func = GPU_GREATER,
+                        GPU_WRITEMASK mask = GPU_WRITE_ALL);
+  static void disableScissor();
+  static void enableScissor(const ivec4 rect);
+  /**
+   * Buf cfg die permutation at runtime berechnet
+   */
+  static void bufCfg(void* ptr, int stride, int shader_attribs);
+  /**
+   * Klassische config bei der man selber die permutation eintragen muss
+   */
+  static void bufCfg(void* ptr, int stride, int shader_attribs,
+                     u64 permutation);
+  /**
+   * Hacky funktion um die permutation automatisch at compile time zu berechnen,
+   * falls diese immer gleich bleibt.
+   * In der <> steht die anzahl der shader input werte
+   * usage: c3d::bufCfg<3>(data, sizeof(vertex));
+   */
+  template <int attribs>
+  constexpr static void bufCfg(void* ptr, int stride) {
+    auto buf = C3D_GetBufInfo();
+    BufInfo_Init(buf);
+    constexpr int pm = permutation(attribs);
+    BufInfo_Add(buf, ptr, stride, attribs, pm);
+  }
+
+  static int drawcalls() { return m_drawcalls; }
+
+ private:
+  static int m_drawcalls;
+  static int m__dc__;
+
+  /**
+   * Funktion die anhand von **ac** genau den permu station wert für BufInfo
+   * ausrechnet wie z.B
+   * ```
+   * ac = 3 -> 0x210
+   * ac = 4 -> 0x3210
+   * ```
+   */
+  constexpr static u64 permutation(int ac) {
+    u64 ret = 0;
+    if (ac < 1 || ac > 15) {
+      throw std::runtime_error("[amy] " + std::to_string(ac) +
+                               " is out of range (1...15)!");
+    }
+    for (int i = 0; i < ac; i++) {
+      ret = (ret << 4) | (ac - 1 - i);
+    }
+    return ret;
+  }
 };
 }  // namespace amy

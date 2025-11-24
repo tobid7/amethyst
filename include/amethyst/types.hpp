@@ -1,7 +1,10 @@
 #pragma once
 
+#include <amethyst/maths/vec.hpp>
+#include <cinttypes>
 #include <functional>
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
