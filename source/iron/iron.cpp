@@ -1,4 +1,5 @@
 #include <amethyst/iron.hpp>
+#include <fstream>
 #include <iostream>
 
 #define catch2()                                                        \
@@ -108,10 +109,10 @@ void iron::draw(const std::vector<iron::command::ref>& data) {
       auto c = data[i].get();
 
       for (int j = 0; j < c->indexBuf.size(); j++) {
-        m_ibuf[m_idx++] = m_vtx + c->indexBuf[i];
+        m_ibuf[m_idx++] = m_vtx + c->indexBuf[j];
       }
       for (int j = 0; j < c->vertexBuf.size(); j++) {
-        m_vbuf[m_vtx++] = c->vertexBuf[i];
+        m_vbuf[m_vtx++] = c->vertexBuf[j];
       }
       i++;
     }
