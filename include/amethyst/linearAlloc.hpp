@@ -32,5 +32,9 @@ class linearAllocator {
   friend bool operator!=(const linearAllocator, const linearAllocator) {
     return false;
   }
+
+  // Use linearSpace free as max_size to not allocate out of bounds
+  // or to b eable to see a crash report screen.
+  size_t max_size() const noexcept { return linearSpaceFree(); }
 };
 }  // namespace amy
