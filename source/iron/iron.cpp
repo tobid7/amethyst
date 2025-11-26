@@ -76,16 +76,11 @@ void iron::newFrame() {
   m_vtx = 0;
 }
 
-C3D_Mtx m;
-
 void iron::drawOn(c3d::screen* screen) {
   m_shader->use();
-  Mtx_Identity(&m);
-  Mtx_OrthoTilt(&m, 0.f, (float)screen->width(), (float)screen->height(), 0.f,
-                1.f, -1.f, false);
   m_mtx = mat4::ortho(0.f, (float)screen->width(), (float)screen->height(), 0.f,
                       1.f, -1.f);
-  m_shader->setMat4(uLocProj, &m);
+  m_shader->setMat4(uLocProj, m_mtx);
 }
 
 void iron::draw(const std::vector<iron::command::ref>& data) {
