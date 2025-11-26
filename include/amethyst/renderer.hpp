@@ -1,9 +1,9 @@
 #pragma once
 
-namespace amy {
+namespace Amy {
 class Renderer {
  public:
   Renderer();
   ~Renderer();
 };
-}  // namespace amys
+}  // namespace Amy

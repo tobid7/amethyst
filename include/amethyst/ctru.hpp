@@ -2,16 +2,16 @@
 
 #include <amethyst/types.hpp>
 
-namespace amy {
-namespace ctru {
-enum services {
-  romfs = 1 << 0,
-  cfgu = 1 << 1,
-  gfx = 1 << 2,
-  gfx_def = 1 << 3,
-  def = romfs | gfx_def
+namespace Amy {
+namespace Ctr {
+enum Services {
+  Romfs = 1 << 0,
+  Cfgu = 1 << 1,
+  Gfx = 1 << 2,
+  GfxDefault = 1 << 3,
+  Default = Romfs | GfxDefault,
 };
-void init(unsigned int srv = def);
-ull getTime();
-}  // namespace ctru
-}  // namespace amy
+void Init(ui srv = Default);
+ull GetTime();
+}  // namespace Ctr
+}  // namespace Amy

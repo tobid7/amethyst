@@ -27,21 +27,24 @@ SOFTWARE.
 
 #include <cmath>
 
-namespace amy {
-template <typename T> class vec2 {
-public:
+namespace Amy {
+template <typename T>
+class vec2 {
+ public:
   T x;
   T y;
 
   // Constructors
 
   constexpr vec2() : x(0), y(0) {}
-  template <typename T1> constexpr vec2(T1 v) {
+  template <typename T1>
+  constexpr vec2(T1 v) {
     x = (T)v;
     y = (T)v;
   }
 
-  template <typename T1> constexpr vec2(const vec2<T1> &v) {
+  template <typename T1>
+  constexpr vec2(const vec2<T1>& v) {
     x = (T)v.x;
     y = (T)v.y;
   }
@@ -50,93 +53,111 @@ public:
 
   // Operations
 
-  template <typename T1> vec2<T> &operator+=(T1 v) {
+  template <typename T1>
+  vec2<T>& operator+=(T1 v) {
     x += (T)v;
     y += (T)v;
     return *this;
   }
 
-  template <typename T1> vec2<T> &operator+=(const vec2<T1> &v) {
+  template <typename T1>
+  vec2<T>& operator+=(const vec2<T1>& v) {
     x += (T)v.x;
     y += (T)v.y;
     return *this;
   }
 
-  template <typename T1> vec2<T> operator+(T1 v) const {
+  template <typename T1>
+  vec2<T> operator+(T1 v) const {
     return vec2<T>(x + (T)v, y + (T)v);
   }
 
-  template <typename T1> vec2<T> operator+(const vec2<T1> &v) const {
+  template <typename T1>
+  vec2<T> operator+(const vec2<T1>& v) const {
     return vec2<T>(x + (T)v.x, y + (T)v.y);
   }
 
-  template <typename T1> vec2<T> &operator-=(T1 v) {
+  template <typename T1>
+  vec2<T>& operator-=(T1 v) {
     x -= (T)v;
     y -= (T)v;
     return *this;
   }
 
-  template <typename T1> vec2<T> &operator-=(const vec2<T1> &v) {
+  template <typename T1>
+  vec2<T>& operator-=(const vec2<T1>& v) {
     x -= (T)v.x;
     y -= (T)v.y;
     return *this;
   }
 
-  template <typename T1> vec2<T> operator-(T1 v) const {
+  template <typename T1>
+  vec2<T> operator-(T1 v) const {
     return vec2<T>(x - (T)v, y - (T)v);
   }
 
-  template <typename T1> vec2<T> operator-(const vec2<T1> &v) const {
+  template <typename T1>
+  vec2<T> operator-(const vec2<T1>& v) const {
     return vec2<T>(x - (T)v.x, y - (T)v.y);
   }
 
-  template <typename T1> vec2<T> &operator*=(T1 v) {
+  template <typename T1>
+  vec2<T>& operator*=(T1 v) {
     x *= (T)v;
     y *= (T)v;
     return *this;
   }
 
-  template <typename T1> vec2<T> &operator*=(const vec2<T1> &v) {
+  template <typename T1>
+  vec2<T>& operator*=(const vec2<T1>& v) {
     x *= (T)v.x;
     y *= (T)v.y;
     return *this;
   }
 
-  template <typename T1> vec2<T> operator*(T1 v) const {
+  template <typename T1>
+  vec2<T> operator*(T1 v) const {
     return vec2<T>(x * (T)v, y * (T)v);
   }
 
-  template <typename T1> vec2<T> operator*(const vec2<T1> &v) const {
+  template <typename T1>
+  vec2<T> operator*(const vec2<T1>& v) const {
     return vec2<T>(x * (T)v.x, y * (T)v.y);
   }
 
-  template <typename T1> vec2<T> &operator/=(T1 v) {
+  template <typename T1>
+  vec2<T>& operator/=(T1 v) {
     x /= (T)v;
     y /= (T)v;
     return *this;
   }
 
-  template <typename T1> vec2<T> &operator/=(const vec2<T1> &v) {
+  template <typename T1>
+  vec2<T>& operator/=(const vec2<T1>& v) {
     x /= (T)v.x;
     y /= (T)v.y;
     return *this;
   }
 
-  template <typename T1> vec2<T> operator/(T1 v) const {
+  template <typename T1>
+  vec2<T> operator/(T1 v) const {
     return vec2<T>(x / (T)v, y / (T)v);
   }
 
-  template <typename T1> vec2<T> operator/(const vec2<T1> &v) const {
+  template <typename T1>
+  vec2<T> operator/(const vec2<T1>& v) const {
     return vec2<T>(x / (T)v.x, y / (T)v.y);
   }
 
   // Generic Operations
 
   vec2 operator-() const { return vec2(-x, -y); }
-  template <typename T1> bool operator==(const vec2<T1> &v) const {
+  template <typename T1>
+  bool operator==(const vec2<T1>& v) const {
     return x == (T)v.x && y == (T)v.y;
   }
-  template <typename T1> bool operator!=(const vec2<T1> &v) const {
+  template <typename T1>
+  bool operator!=(const vec2<T1>& v) const {
     return !(*this == v);
   }
 
@@ -145,7 +166,8 @@ public:
   double Len() const { return std::sqrt(SqLen()); }
   double SqLen() const { return x * x + y * y; }
 
-  template <typename T1> double Distance(const vec2<T1> &v) const {
+  template <typename T1>
+  double Distance(const vec2<T1>& v) const {
     return (*this - v).Len();
   }
 
@@ -157,7 +179,8 @@ public:
     return *this / (T)l;
   }
 
-  template <typename T1> T Dot(const vec2<T1> &v) const {
+  template <typename T1>
+  T Dot(const vec2<T1>& v) const {
     return x * (T)v.x + y * (T)v.y;
   }
 
@@ -171,4 +194,4 @@ public:
 using fvec2 = vec2<float>;
 using ivec2 = vec2<int>;
 using dvec2 = vec2<double>;
-} // namespace amy
+}  // namespace Amy

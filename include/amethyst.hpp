@@ -8,6 +8,6 @@
 #include <amethyst/renderer.hpp>
 #include <amethyst/texture.hpp>
 
-namespace amy {
-void registerCxxExceptionHandler();
+namespace Amy {
+void RegisterCxxExceptionHandler();
 }

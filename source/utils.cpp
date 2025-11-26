@@ -1,9 +1,9 @@
 #include <amethyst/utils.hpp>
 #include <fstream>
 
-namespace amy {
-namespace utils {
-ui fastHash(cstr& s) {
+namespace Amy {
+namespace Utils {
+ui fastHash(ksr s) {
   ui hash = 5381;
   for (auto& it : s) {
     hash = (hash * 33) + static_cast<uc>(it);
@@ -11,7 +11,7 @@ ui fastHash(cstr& s) {
   return hash;
 }
 
-vec<uc> loadFile2Mem(cstr& path) {
+vec<uc> LoadFile2Mem(ksr path) {
   std::ifstream iff(path, std::ios::binary);
   if (!iff) {
     return vec<uc>();
@@ -25,7 +25,7 @@ vec<uc> loadFile2Mem(cstr& path) {
   return res;
 }
 
-ui hashMemory(cvec<uc>& data) {
+ui HashMemory(kvr<uc> data) {
   ui hash = 4477;
   for (auto& it : data) {
     hash = (hash * 33) + it;
@@ -33,7 +33,7 @@ ui hashMemory(cvec<uc>& data) {
   return hash;
 }
 
-ui nextPow2(ui v) {
+ui NextPow2(ui v) {
   v--;
   v |= v >> 1;
   v |= v >> 2;
@@ -44,10 +44,26 @@ ui nextPow2(ui v) {
   return (v >= 64 ? v : 64);
 }
 
-bool isSingleBitNum(ui v) { return v && !(v & (v - 1)); }
+bool IsSingleBitNum(ui v) { return v && !(v & (v - 1)); }
 
-namespace image {
-void reverseBuf(vec<uc>& buf, int w, int h, int c) {
+ull GetTimeNano() {
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+ull GetTimeMicro() {
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+ull GetTimeMilli() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+
+namespace Image {
+void ReverseBuf(vec<uc>& buf, int w, int h, int c) {
   vec<uc> cpy = buf;
   for (int x = 0; x < w; x++) {
     for (int y = 0; y < h; y++) {
@@ -59,7 +75,7 @@ void reverseBuf(vec<uc>& buf, int w, int h, int c) {
   }
 }
 
-void removeAlphaChannel(vec<uc>& buf, int w, int h) {
+void RemoveAlphaChannel(vec<uc>& buf, int w, int h) {
   vec<uc> cpy = buf;
   buf.resize(w * h * 3);
   for (int y = 0; y < h; y++) {
@@ -73,7 +89,7 @@ void removeAlphaChannel(vec<uc>& buf, int w, int h) {
   }
 }
 
-void addAlphaChannel(vec<uc>& buf, int w, int h) {
+void AddAlphaChannel(vec<uc>& buf, int w, int h) {
   vec<uc> cpy = buf;
   buf.resize(w * h * 4);
   for (int y = 0; y < h; y++) {
@@ -87,6 +103,6 @@ void addAlphaChannel(vec<uc>& buf, int w, int h) {
     }
   }
 }
-}  // namespace image
-}  // namespace utils
-}  // namespace amy
+}  // namespace Image
+}  // namespace Utils
+}  // namespace Amy

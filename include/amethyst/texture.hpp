@@ -7,33 +7,33 @@
 #include <amethyst/rect.hpp>
 #include <amethyst/types.hpp>
 
-namespace amy {
-class texture : public asset {
+namespace Amy {
+class Texture : public Asset {
  public:
-  texture() = default;
-  texture(cstr& path);
-  ~texture();
-  void load(cstr& path);
-  void load(const std::vector<uc>& pixels, int w, int h, int bpp = 4,
-            image::format fmt = image::RGBA);
-  void unload();
+  Texture() = default;
+  Texture(ksr path);
+  ~Texture();
+  void Load(ksr path);
+  void Load(kvr<uc> pixels, int w, int h, int bpp = 4,
+            Image::Format fmt = Image::RGBA);
+  void Unload();
 
-  int w() const { return m_size.x; }
-  int& w() { return m_size.x; }
-  int h() const { return m_size.y; }
-  int& h() { return m_size.y; }
-  ivec2 size() const { return m_size; }
-  ivec2& size() { return m_size; }
-  rect& uv() { return m_uv; }
+  int W() const { return pSize.x; }
+  int& W() { return pSize.x; }
+  int H() const { return pSize.y; }
+  int& H() { return pSize.y; }
+  ivec2 Size() const { return pSize; }
+  ivec2& Size() { return pSize; }
+  Rect& Uv() { return pUv; }
 
-  C3D_Tex* ptr() { return m_loaded ? &m_tex : nullptr; }
+  C3D_Tex* Ptr() { return pLoaded ? &pTex : nullptr; }
 
-  void bind(int reg = 0);
+  void Bind(int reg = 0);
 
  private:
-  C3D_Tex m_tex;
-  ivec2 m_size;
-  rect m_uv;
-  bool m_loaded = false;
+  C3D_Tex pTex;
+  ivec2 pSize;
+  Rect pUv;
+  bool pLoaded = false;
 };
-}  // namespace amy
+}  // namespace Amy

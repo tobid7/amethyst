@@ -2,14 +2,20 @@
 
 #include <amethyst/app.hpp>
 #include <amethyst/ctru.hpp>
+#include <amethyst/utils.hpp>
 
-namespace amy {
-void app::run() {
+namespace Amy {
+void App::Run() {
+  pLast = Utils::GetTimeNano();
+  consoleInit(GFX_BOTTOM, NULL);
   while (aptMainLoop()) {
-    ull c = ctru::getTime();
-    m_delta = static_cast<double>(c) - static_cast<float>(m_last);
-    m_last = c;
-    main();
+    ull c = Utils::GetTimeNano();
+    pDelta = static_cast<double>(static_cast<double>(c) -
+                                 static_cast<double>(pLast)) *
+             0.000001;
+    pTime += pDelta * 0.001;
+    pLast = c;
+    Main();
   }
 }
-}  // namespace amy
+}  // namespace Amy

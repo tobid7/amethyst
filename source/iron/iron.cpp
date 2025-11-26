@@ -14,7 +14,7 @@
     }                                                                   \
   })
 
-namespace amy {
+namespace Amy {
 const char* __ironshader__ = R"(; LI7 Shader
 ; Constants
 .constf myconst(0.0, 1.0, 0.00392156862745, 0.0)
@@ -56,117 +56,117 @@ unsigned char li_shader[] = {
   };
 // clang-format on
 size_t li_shader_size = 0x124;
-std::vector<iron::vertex, linearAllocator<iron::vertex>> iron::m_vbuf;
-std::vector<u16, linearAllocator<u16>> iron::m_ibuf;
-int iron::uLocProj = 0;
-c3d::shader* iron::m_shader = nullptr;
-mat4 iron::m_mtx;
-int iron::m_idx = 0, iron::m_vtx = 0;
-texture* iron::m_solid = nullptr;
+std::vector<Iron::Vertex, linearAllocator<Iron::Vertex>> Iron::m_vbuf;
+std::vector<u16, linearAllocator<u16>> Iron::m_ibuf;
+int Iron::uLocProj = 0;
+C3D::Shader* Iron::m_shader = nullptr;
+mat4 Iron::m_mtx;
+int Iron::m_idx = 0, Iron::m_vtx = 0;
+Texture* Iron::m_solid = nullptr;
 
-void iron::init() {
-  setupShader();
+void Iron::Init() {
+  pSetupShader();
   m_vbuf.resize(4 * 4096);
   m_ibuf.resize(6 * 4096);
-  initSolidTex();
+  pInitSolidTex();
 }
 
-void iron::newFrame() {
+void Iron::NewFrame() {
   m_idx = 0;
   m_vtx = 0;
 }
 
-void iron::drawOn(c3d::screen* screen) {
-  m_shader->use();
-  m_mtx = mat4::ortho(0.f, (float)screen->width(), (float)screen->height(), 0.f,
+void Iron::DrawOn(C3D::Screen* screen) {
+  m_shader->Use();
+  m_mtx = mat4::ortho(0.f, (float)screen->Width(), (float)screen->Height(), 0.f,
                       1.f, -1.f);
-  m_shader->setMat4(uLocProj, m_mtx);
+  m_shader->SetMat4(uLocProj, m_mtx);
 }
 
-void iron::draw(const std::vector<iron::command::ref>& data) {
+void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
   // disable depthtest cause we have no z buffer
-  c3d::depthTest(false);
-  fragConfig();
+  C3D::DepthTest(false);
+  pFragConfig();
   size_t i = 0;
   while (i < data.size()) {
-    texture* tex = data[i]->tex;
+    Texture* tex = data[i]->Tex;
     if (!tex) {
       i++;
       continue;
     }
-    auto scissorOn = data[i]->scissorOn;
-    auto scissor = data[i]->scissorRect;
+    auto scissorOn = data[i]->ScissorOn;
+    auto scissor = data[i]->ScissorRect;
     auto start = i;
 
-    // Loop until a statgechange and copy all data into vertex/index buf
-    while (i < data.size() && scissorOn == data[i]->scissorOn &&
-           scissor == data[i]->scissorRect && tex == data[i]->tex) {
+    // Loop until a statgechange and copy all data into Vertex/index buf
+    while (i < data.size() && scissorOn == data[i]->ScissorOn &&
+           scissor == data[i]->ScissorRect && tex == data[i]->Tex) {
       auto c = data[i].get();
 
-      for (int j = 0; j < c->indexBuf.size(); j++) {
-        m_ibuf[m_idx++] = m_vtx + c->indexBuf[j];
+      for (int j = 0; j < c->IndexBuf.size(); j++) {
+        m_ibuf[m_idx++] = m_vtx + c->IndexBuf[j];
       }
-      for (int j = 0; j < c->vertexBuf.size(); j++) {
-        m_vbuf[m_vtx++] = c->vertexBuf[j];
+      for (int j = 0; j < c->VertexBuf.size(); j++) {
+        m_vbuf[m_vtx++] = c->VertexBuf[j];
       }
       i++;
     }
     ///// SCISSOR LOGIC BEG /////
     ///// SCISSOR LOGIC END /////
-    tex->bind();
-    c3d::bufCfg<3>(m_vbuf.data(), sizeof(vertex));
-    c3d::drawElements(i - start, m_ibuf.data() + start);
+    tex->Bind();
+    C3D::BufCfg<3>(m_vbuf.data(), sizeof(Vertex));
+    C3D::DrawElements(i - start, m_ibuf.data() + start);
   }
-  c3d::depthTest(true);
+  C3D::DepthTest(true);
 }
 
-void iron::setupShader() {
-  m_shader = new c3d::shader();
-  m_shader->load("romfs:/shaders/lithium.shbin");
-  // m_shader->compile(__ironshader__);
-  m_shader->input(GPU_FLOAT, 2);          // pos
-  m_shader->input(GPU_FLOAT, 2);          // uv
-  m_shader->input(GPU_UNSIGNED_BYTE, 4);  // color
+void Iron::pSetupShader() {
+  m_shader = new C3D::Shader();
+  m_shader->Load("romfs:/shaders/lithium.shbin");
+  // m_shader->Compile(__ironshader__);
+  m_shader->Input(GPU_FLOAT, 2);          // pos
+  m_shader->Input(GPU_FLOAT, 2);          // uv
+  m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
   uLocProj = m_shader->loc("projection");
 }
 
-void iron::fragConfig() {
-  c3d::frag::edit();
-  c3d::frag::src(C3D_Both, GPU_TEXTURE0);
-  c3d::frag::func(C3D_Both, GPU_MODULATE);
+void Iron::pFragConfig() {
+  C3D::Frag::Edit();
+  C3D::Frag::Src(C3D_Both, GPU_TEXTURE0);
+  C3D::Frag::Func(C3D_Both, GPU_MODULATE);
 }
 
-void iron::initSolidTex() {
+void Iron::pInitSolidTex() {
   // i know there is a lot of memory wasted :(
   std::vector<uc> pixels(16 * 16 * 4, 0xff);
-  m_solid = new texture();
-  m_solid->load(pixels, 16, 16);
+  m_solid = new Texture();
+  m_solid->Load(pixels, 16, 16);
 }
 
-bool iron::inBox(const fvec2& pos, const fvec2& size, const fvec4& area) {
+bool Iron::InBox(const fvec2& pos, const fvec2& size, const fvec4& area) {
   return (pos.x + size.x >= area.x && pos.y + size.y >= area.y &&
           pos.x <= area.z && pos.y <= area.w);
 }
 
-bool iron::inBox(const fvec2& pos, const fvec4& area) {
+bool Iron::InBox(const fvec2& pos, const fvec4& area) {
   return (pos.x > area.x && pos.x < area.x + area.z && pos.y > area.y &&
           pos.y < area.y + area.w);
 }
 
-bool iron::inBox(const fvec2& a, const fvec2& b, const fvec2& c,
+bool Iron::InBox(const fvec2& a, const fvec2& b, const fvec2& c,
                  const fvec4& area) {
   return ((a.x < area.z && b.x < area.z && c.x < area.z) ||
           (a.y < area.w && b.y < area.w && c.y < area.w) ||
           (a.x > 0 && b.x > 0 && c.x > 0) || (a.y > 0 && b.y > 0 && c.y > 0));
 }
 
-void iron::rotateCorner(fvec2& pos, float s, float c) {
+void Iron::RotateCorner(fvec2& pos, float s, float c) {
   float x = pos.x * c - pos.y * s;
   float y = pos.y * c - pos.x * s;
   pos = fvec2(x, y);
 }
 
-rect iron::primRect(const fvec2& pos, const fvec2& size, float angle) {
+Rect Iron::PrimRect(const fvec2& pos, const fvec2& size, float angle) {
   fvec2 c = size * 0.5f;  // Center
   fvec2 corner[4] = {
       fvec2(-c.x, -c.y),
@@ -180,16 +180,16 @@ rect iron::primRect(const fvec2& pos, const fvec2& size, float angle) {
     float s = std::sin(angle);
     float co = std::cos(angle);
     for (int i = 0; i < 4; i++) {
-      rotateCorner(corner[i], s, co);
+      RotateCorner(corner[i], s, co);
     }
   }
 
   // Return Result
-  return rect(corner[0] + pos + c, corner[1] + pos + c, corner[2] + pos + c,
+  return Rect(corner[0] + pos + c, corner[1] + pos + c, corner[2] + pos + c,
               corner[3] + pos + c);
 }
 
-rect iron::primLine(const fvec2& a, const fvec2& b, int thickness) {
+Rect Iron::PrimLine(const fvec2& a, const fvec2& b, int thickness) {
   // Using the vec maths api makes the code as short as it is
   fvec2 dir = a - b;
   float len = dir.Len();
@@ -197,35 +197,35 @@ rect iron::primLine(const fvec2& a, const fvec2& b, int thickness) {
   fvec2 perpendicular(-unit_dir.y, unit_dir.x);
   fvec2 off = perpendicular * ((float)thickness * 0.5f);
 
-  return rect(a + off, b + off, a - off, b - off);
+  return Rect(a + off, b + off, a - off, b - off);
 }
 
-void iron::cmdQuad(command* cmd, const rect& q, const rect& uv, ui color) {
-  cmd->add(0).add(1).add(2);
-  cmd->add(0).add(2).add(3);
-  cmd->add(vertex(q.botRight(), uv.botRight(), color));
-  cmd->add(vertex(q.topRight(), uv.topRight(), color));
-  cmd->add(vertex(q.topLeft(), uv.topLeft(), color));
-  cmd->add(vertex(q.botLeft(), uv.botLeft(), color));
+void Iron::CmdQuad(Command* cmd, const Rect& q, const Rect& uv, ui color) {
+  cmd->Add(0).Add(1).Add(2);
+  cmd->Add(0).Add(2).Add(3);
+  cmd->Add(Vertex(q.BotRight(), uv.BotRight(), color));
+  cmd->Add(Vertex(q.TopRight(), uv.TopRight(), color));
+  cmd->Add(Vertex(q.TopLeft(), uv.TopLeft(), color));
+  cmd->Add(Vertex(q.BotLeft(), uv.BotLeft(), color));
 }
 
-void iron::cmdTriangle(command* cmd, const fvec2& a, const fvec2& b,
+void Iron::CmdTriangle(Command* cmd, const fvec2& a, const fvec2& b,
                        const fvec2& c, ui color) {
-  cmd->add(2).add(1).add(0);  // reverse cause otherwise invisible
-  cmd->add(vertex(a, fvec2(0, 1), color));
-  cmd->add(vertex(b, fvec2(1, 1), color));
-  cmd->add(vertex(c, fvec2(1, 0), color));
+  cmd->Add(2).Add(1).Add(0);  // reverse cause otherwise invisible
+  cmd->Add(Vertex(a, fvec2(0, 1), color));
+  cmd->Add(Vertex(b, fvec2(1, 1), color));
+  cmd->Add(Vertex(c, fvec2(1, 0), color));
 }
 
-void iron::cmdConvexPolyFilled(command* cmd, const std::vector<fvec2>& points,
-                               ui color, texture* tex) {
+void Iron::CmdConvexPolyFilled(Command* cmd, const std::vector<fvec2>& points,
+                               ui color, Texture* tex) {
   if (points.size() < 3 || tex == nullptr) {
 #ifdef AMY_GOD_DEV
     return;
 #else
     throw std::runtime_error("[amy] iron: trying to render convex poly with " +
                              std::to_string(points.size()) +
-                             " points and texture " + std::to_string((ui)tex));
+                             " points and Texture " + std::to_string((ui)tex));
 #endif
   }
   // Support for Custom Textures (UV calculation)
@@ -240,13 +240,13 @@ void iron::cmdConvexPolyFilled(command* cmd, const std::vector<fvec2>& points,
   }
   // Get Short defines for UV
   // (Bottom Right is not required)
-  auto uv_tl = tex->uv().topLeft();
-  auto uv_tr = tex->uv().topRight();
-  auto uv_bl = tex->uv().botLeft();
+  auto uv_tl = tex->Uv().TopLeft();
+  auto uv_tr = tex->Uv().TopRight();
+  auto uv_bl = tex->Uv().BotLeft();
 
   // Render
   for (int i = 2; i < (int)points.size(); i++) {
-    cmd->add(0).add(i).add(i - 1);
+    cmd->Add(0).Add(i).Add(i - 1);
   }
   for (int i = 0; i < (int)points.size(); i++) {
     // Calculate U and V coords
@@ -254,7 +254,7 @@ void iron::cmdConvexPolyFilled(command* cmd, const std::vector<fvec2>& points,
         uv_tl.x + ((points[i].x - minX) / (maxX - minX)) * (uv_tr.x - uv_tl.x);
     float v =
         uv_tl.y + ((points[i].y - minY) / (maxY - minY)) * (uv_bl.y - uv_tl.y);
-    cmd->add(vertex(points[i], fvec2(u, v), color));
+    cmd->Add(Vertex(points[i], fvec2(u, v), color));
   }
 }
-}  // namespace amy
+}  // namespace Amy

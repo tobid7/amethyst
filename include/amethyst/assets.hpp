@@ -3,22 +3,22 @@
 #include <amethyst/texture.hpp>
 #include <amethyst/types.hpp>
 
-namespace amy {
-class assets {
+namespace Amy {
+class Assets {
  public:
-  assets() = default;
-  ~assets() = default;
+  Assets() = default;
+  ~Assets() = default;
 
-  void add(cstr& id, asset* v) { m_assets[id] = v; }
-  void remove(cstr& id) {
-    if (m_assets.count(id)) {
-      m_assets.erase(id);
+  void add(ksr id, Asset* v) { pAssets[id] = v; }
+  void remove(ksr id) {
+    if (pAssets.count(id)) {
+      pAssets.erase(id);
     }
   }
   template <typename T>
-  T* get(cstr& id) {
-    auto r = m_assets.find(id);
-    if (r == m_assets.end()) {
+  T* get(ksr id) {
+    auto r = pAssets.find(id);
+    if (r == pAssets.end()) {
       throw std::runtime_error("[amy] assets: unable to find " + id);
     }
     if (auto v = dynamic_cast<T*>(r->second)) {
@@ -29,6 +29,6 @@ class assets {
   }
 
  private:
-  std::map<str, asset*> m_assets;
+  std::map<str, Asset*> pAssets;
 };
-}  // namespace amy
+}  // namespace Amy

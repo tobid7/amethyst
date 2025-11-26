@@ -36,25 +36,25 @@ SOFTWARE.
  */
 
 template <typename T, typename CharT>
-struct std::formatter<amy::vec2<T>, CharT> : std::formatter<T, CharT> {
+struct std::formatter<Amy::vec2<T>, CharT> : std::formatter<T, CharT> {
   template <typename FormatContext>
-  auto format(const amy::vec2<T> &v, FormatContext &ctx) const {
+  auto format(const Amy::vec2<T>& v, FormatContext& ctx) const {
     return std::format_to(ctx.out(), "{}, {}", v.x, v.y);
   }
 };
 
 template <typename T, typename CharT>
-struct std::formatter<amy::vec3<T>, CharT> : std::formatter<T, CharT> {
+struct std::formatter<Amy::vec3<T>, CharT> : std::formatter<T, CharT> {
   template <typename FormatContext>
-  auto format(const amy::vec3<T> &v, FormatContext &ctx) const {
+  auto format(const Amy::vec3<T>& v, FormatContext& ctx) const {
     return std::format_to(ctx.out(), "{}, {}, {}", v.x, v.y, v.z);
   }
 };
 
 template <typename T, typename CharT>
-struct std::formatter<amy::vec4<T>, CharT> : std::formatter<T, CharT> {
+struct std::formatter<Amy::vec4<T>, CharT> : std::formatter<T, CharT> {
   template <typename FormatContext>
-  auto format(const amy::vec4<T> &v, FormatContext &ctx) const {
+  auto format(const Amy::vec4<T>& v, FormatContext& ctx) const {
     return std::format_to(ctx.out(), "{}, {}, {}, {}", v.x, v.y, v.z, v.w);
   }
 };

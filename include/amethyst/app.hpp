@@ -3,18 +3,24 @@
 #include <amethyst/asset.hpp>
 #include <amethyst/types.hpp>
 
-namespace amy {
-class app {
+namespace Amy {
+class App {
  public:
-  app() {}
-  ~app() {}
+  App() {
+    pDelta = 0.0;
+    pTime = 0.0;
+    pLast = 0LL;
+  }
+  ~App() {}
 
-  virtual void main() {}
-  void run();
-  double delta() const { return m_delta; }
+  virtual void Main() {}
+  void Run();
+  double Delta() const { return pDelta; }
+  double Time() const { return pTime; }
 
  private:
-  ull m_last;
-  double m_delta;
+  ull pLast;
+  double pDelta;
+  double pTime;
 };
-}  // namespace amy
+}  // namespace Amy

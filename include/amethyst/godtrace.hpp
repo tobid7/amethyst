@@ -2,12 +2,12 @@
 
 #include <string>
 
-namespace amy {
-class gtrace {
+namespace Amy {
+class GTrace {
  public:
-  gtrace() = default;
-  ~gtrace() = default;
+  GTrace() = default;
+  ~GTrace() = default;
 
  private:
 };
-}  // namespace amy
+}  // namespace Amy

@@ -1,7 +1,7 @@
 #include <amethyst/renderer.hpp>
 
-namespace amy {
+namespace Amy {
 Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
-}  // namespace amy
+}  // namespace Amy

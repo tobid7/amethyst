@@ -1,9 +1,9 @@
 #pragma once
 
-namespace amy {
-class asset {
+namespace Amy {
+class Asset {
  public:
-  asset() = default;
-  virtual ~asset() = default;
+  Asset() = default;
+  virtual ~Asset() = default;
 };
-}  // namespace amy
+}  // namespace Amy

@@ -9,7 +9,7 @@
 // based on this guide:
 // https://johnfarrier.com/custom-allocators-in-c-high-performance-memory-management/
 
-namespace amy {
+namespace Amy {
 template <typename T>
 class linearAllocator {
  public:
@@ -37,4 +37,4 @@ class linearAllocator {
   // or to b eable to see a crash report screen.
   size_t max_size() const noexcept { return linearSpaceFree(); }
 };
-}  // namespace amy
+}  // namespace Amy

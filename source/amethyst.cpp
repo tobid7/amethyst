@@ -26,10 +26,10 @@ void NpiD7CxxExceptionHandler() {
 }
 #endif
 
-namespace amy {
-void registerCxxExceptionHandler() {
+namespace Amy {
+void RegisterCxxExceptionHandler() {
 #ifdef AMY_3DS
   std::set_terminate(NpiD7CxxExceptionHandler);
 #endif
 }
-}  // namespace amy
+}  // namespace Amy

@@ -29,11 +29,11 @@ SOFTWARE.
 #include <cmath>
 #include <numbers>
 
-namespace amy {
-namespace numbers {
+namespace Amy {
+namespace Numbers {
 constexpr float Tau = std::numbers::pi * 2.f;
 }
-constexpr float Radians(float v) { return v * (numbers::Tau / 360.0f); }
+constexpr float Radians(float v) { return v * (Numbers::Tau / 360.0f); }
 /**
  * Minimal Mtx4 Lib that precomputes
  * basic stuff stuff at compiletime
@@ -141,4 +141,4 @@ struct mat4 {
   static mat4 perspective(float fov, float aspect, float n, float f);
   static mat4 lookAt(const fvec3& pos, const fvec3& center, const fvec3& up);
 };
-}  // namespace amy
+}  // namespace Amy

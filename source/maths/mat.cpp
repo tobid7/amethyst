@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <amethyst/maths/mat.hpp>
 
-namespace amy {
+namespace Amy {
 mat4 mat4::rotateX(float a) {
   float c = std::cos(a);
   float s = std::sin(a);
@@ -118,4 +118,4 @@ mat4 mat4::lookAt(const fvec3& pos, const fvec3& center, const fvec3& up) {
   ret(2, 3) = f.Dot(pos);
   return ret;
 }
-}  // namespace amy
+}  // namespace Amy

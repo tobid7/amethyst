@@ -2,16 +2,16 @@
 
 #include <amethyst/ctru.hpp>
 
-namespace amy {
-namespace ctru {
-void init(unsigned int srvs) {
-  if (srvs & romfs) {
+namespace Amy {
+namespace Ctr {
+void Init(ui srvs) {
+  if (srvs & Romfs) {
     romfsInit();
   }
-  if (srvs & gfx_def) {
+  if (srvs & GfxDefault) {
     gfxInitDefault();
   }
 }
-ull getTime() { return osGetTime(); }
-}  // namespace ctru
-}  // namespace amy
+ull GetTime() { return osGetTime(); }
+}  // namespace Ctr
+}  // namespace Amy

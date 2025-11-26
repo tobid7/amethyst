@@ -29,9 +29,10 @@ SOFTWARE.
 // Extended includes (rename if you use other filenames/paths)
 #include <amethyst/maths/vec2.hpp>
 
-namespace amy {
-template <typename T> class vec3 {
-public:
+namespace Amy {
+template <typename T>
+class vec3 {
+ public:
   T x;
   T y;
   T z;
@@ -39,13 +40,15 @@ public:
   // Constructors
 
   constexpr vec3() : x(0), y(0), z(0) {}
-  template <typename T1> constexpr vec3(T1 v) {
+  template <typename T1>
+  constexpr vec3(T1 v) {
     x = (T)v;
     y = (T)v;
     z = (T)v;
   }
 
-  template <typename T1> constexpr vec3(const vec3<T1> &v) {
+  template <typename T1>
+  constexpr vec3(const vec3<T1>& v) {
     x = (T)v.x;
     y = (T)v.y;
     z = (T)v.z;
@@ -54,7 +57,8 @@ public:
   constexpr explicit vec3(T x, T y, T z) : x(x), y(y), z(z) {}
 
   // Extended Constructors
-  template <typename T1> constexpr explicit vec3(const vec2<T1> &xy, T1 z) {
+  template <typename T1>
+  constexpr explicit vec3(const vec2<T1>& xy, T1 z) {
     {
       x = (T)xy.x;
       y = (T)xy.y;
@@ -64,101 +68,119 @@ public:
 
   // Operations
 
-  template <typename T1> vec3<T> &operator+=(T1 v) {
+  template <typename T1>
+  vec3<T>& operator+=(T1 v) {
     x += (T)v;
     y += (T)v;
     z += (T)v;
     return *this;
   }
 
-  template <typename T1> vec3<T> &operator+=(const vec3<T1> &v) {
+  template <typename T1>
+  vec3<T>& operator+=(const vec3<T1>& v) {
     x += (T)v.x;
     y += (T)v.y;
     z += (T)v.z;
     return *this;
   }
 
-  template <typename T1> vec3<T> operator+(T1 v) const {
+  template <typename T1>
+  vec3<T> operator+(T1 v) const {
     return vec3<T>(x + (T)v, y + (T)v, z + (T)v);
   }
 
-  template <typename T1> vec3<T> operator+(const vec3<T1> &v) const {
+  template <typename T1>
+  vec3<T> operator+(const vec3<T1>& v) const {
     return vec3<T>(x + (T)v.x, y + (T)v.y, z + (T)v.z);
   }
 
-  template <typename T1> vec3<T> &operator-=(T1 v) {
+  template <typename T1>
+  vec3<T>& operator-=(T1 v) {
     x -= (T)v;
     y -= (T)v;
     z -= (T)v;
     return *this;
   }
 
-  template <typename T1> vec3<T> &operator-=(const vec3<T1> &v) {
+  template <typename T1>
+  vec3<T>& operator-=(const vec3<T1>& v) {
     x -= (T)v.x;
     y -= (T)v.y;
     z -= (T)v.z;
     return *this;
   }
 
-  template <typename T1> vec3<T> operator-(T1 v) const {
+  template <typename T1>
+  vec3<T> operator-(T1 v) const {
     return vec3<T>(x - (T)v, y - (T)v, z - (T)v);
   }
 
-  template <typename T1> vec3<T> operator-(const vec3<T1> &v) const {
+  template <typename T1>
+  vec3<T> operator-(const vec3<T1>& v) const {
     return vec3<T>(x - (T)v.x, y - (T)v.y, z - (T)v.z);
   }
 
-  template <typename T1> vec3<T> &operator*=(T1 v) {
+  template <typename T1>
+  vec3<T>& operator*=(T1 v) {
     x *= (T)v;
     y *= (T)v;
     z *= (T)v;
     return *this;
   }
 
-  template <typename T1> vec3<T> &operator*=(const vec3<T1> &v) {
+  template <typename T1>
+  vec3<T>& operator*=(const vec3<T1>& v) {
     x *= (T)v.x;
     y *= (T)v.y;
     z *= (T)v.z;
     return *this;
   }
 
-  template <typename T1> vec3<T> operator*(T1 v) const {
+  template <typename T1>
+  vec3<T> operator*(T1 v) const {
     return vec3<T>(x * (T)v, y * (T)v, z * (T)v);
   }
 
-  template <typename T1> vec3<T> operator*(const vec3<T1> &v) const {
+  template <typename T1>
+  vec3<T> operator*(const vec3<T1>& v) const {
     return vec3<T>(x * (T)v.x, y * (T)v.y, z * (T)v.z);
   }
 
-  template <typename T1> vec3<T> &operator/=(T1 v) {
+  template <typename T1>
+  vec3<T>& operator/=(T1 v) {
     x /= (T)v;
     y /= (T)v;
     z /= (T)v;
     return *this;
   }
 
-  template <typename T1> vec3<T> &operator/=(const vec3<T1> &v) {
+  template <typename T1>
+  vec3<T>& operator/=(const vec3<T1>& v) {
     x /= (T)v.x;
     y /= (T)v.y;
     z /= (T)v.z;
     return *this;
   }
 
-  template <typename T1> vec3<T> operator/(T1 v) const {
+  template <typename T1>
+  vec3<T> operator/(T1 v) const {
     return vec3<T>(x / (T)v, y / (T)v, z / (T)v);
   }
 
-  template <typename T1> vec3<T> operator/(const vec3<T1> &v) const {
+  template <typename T1>
+  vec3<T> operator/(const vec3<T1>& v) const {
     return vec3<T>(x / (T)v.x, y / (T)v.y, z / (T)v.z);
   }
 
   // Generic Operations
 
   vec3 operator-() const { return vec3(-x, -y, -z); }
-  template <typename T1> bool operator==(const vec3<T1> &v) const {
+  template <typename T1>
+  bool operator==(const vec3<T1>& v) const {
     return x == (T)v.x && y == (T)v.y && z == (T)v.z;
   }
-  template <typename T1> bool operator!=(const vec3<T1> &v) const {
+  template <typename T1>
+  bool operator!=(const vec3<T1>& v) const {
     return !(*this == v);
   }
 
@@ -167,7 +189,8 @@ public:
   double Len() const { return std::sqrt(SqLen()); }
   double SqLen() const { return x * x + y * y + z * z; }
 
-  template <typename T1> double Distance(const vec3<T1> &v) const {
+  template <typename T1>
+  double Distance(const vec3<T1>& v) const {
     return (*this - v).Len();
   }
 
@@ -179,11 +202,13 @@ public:
     return *this / (T)l;
   }
 
-  template <typename T1> T Dot(const vec3<T1> &v) const {
+  template <typename T1>
+  T Dot(const vec3<T1>& v) const {
     return x * (T)v.x + y * (T)v.y + z * (T)v.z;
   }
 
-  template <typename T1> vec3<T> Cross(const vec3<T1> &v) const {
+  template <typename T1>
+  vec3<T> Cross(const vec3<T1>& v) const {
     return vec3<T>(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
   }
 
@@ -207,4 +232,4 @@ public:
 using fvec3 = vec3<float>;
 using ivec3 = vec3<int>;
 using dvec3 = vec3<double>;
-} // namespace amy
+}  // namespace Amy

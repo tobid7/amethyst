@@ -1,58 +1,46 @@
 #include <amethyst.hpp>
+#include <iostream>
 
 #include "amethyst/iron.hpp"
 
-class example : public amy::app {
+class example : public Amy::App {
  public:
   example() {
-    amy::ctru::init();
+    Amy::Ctr::Init();
     consoleInit(GFX_BOTTOM, NULL);
-    amy::c3d::init();
-    m_top = amy::c3d::createScreen(GFX_TOP, GFX_LEFT);
-    amy::iron::init();
-    dl = new amy::iron::drawlist();
-    dl->drawSolid();
-    auto cmd = std::make_unique<amy::iron::command>();
-    cmd->index = 0;
-    cmd->layer = 0;
-    cmd->tex = amy::iron::whiteTex();
-    cmd->add(0).add(1).add(2);
-    cmd->add(amy::iron::vertex(200, 50, 0, 0, 0xff0000ff));
-    cmd->add(amy::iron::vertex(100, 190, 0, 0, 0xff00ff00));
-    cmd->add(amy::iron::vertex(300, 190, 0, 0, 0xffff0000));
-    cmdl.push_back(std::move(cmd));
-    //  throw std::runtime_error(std::format(
-    //      "solid tex: {:#08x}\nsize: {}\nptr: {:#08x}",
-    //      (amy::ui)amy::iron::whiteTex(), amy::iron::whiteTex()->size(),
-    //      (amy::ui)amy::iron::whiteTex()->ptr()));
+    Amy::C3D::Init();
+    m_top = Amy::C3D::CreateScreen(GFX_TOP, GFX_LEFT);
+    Amy::Iron::Init();
+    dl = new Amy::Iron::Drawlist();
+    dl->DrawSolid();
   };
   ~example() {
-    amy::c3d::deleteScreen(m_top);
-    amy::c3d::deinit();
+    Amy::C3D::DeleteScreen(m_top);
+    Amy::C3D::Deinit();
   };
 
-  void main() {
-    amy::c3d::startFrame();
-    m_top->startDraw();
-    m_top->clear();
-    // dl->drawRectFilled(0, 50, 0xff00ff00);
-    amy::iron::newFrame();
-    amy::iron::drawOn(m_top);
-    // amy::iron::draw(dl->data());
-    amy::iron::draw(cmdl);
-    // dl->clear();
-    amy::c3d::endFrame();
+  void Main() override {
+    Amy::C3D::StartFrame();
+    m_top->Use();
+    m_top->Clear();
+    dl->DrawRectFilled(0, 50, 0xff00ff00);
+    Amy::Iron::NewFrame();
+    Amy::Iron::DrawOn(m_top);
+    Amy::Iron::Draw(*dl);
+    dl->Clear();
+    Amy::C3D::EndFrame();
+    std::cout << std::format("\x1b[1;1HDelta: {:.3f}\x1b[K", this->Delta());
+    std::cout << std::format("\x1b[2;1HTime: {:.2f}\x1b[K", this->Time());
   }
 
  private:
-  amy::c3d::screen* m_top = nullptr;
-  amy::iron::drawlist* dl = nullptr;
-  std::vector<amy::iron::command::ref> cmdl;
+  Amy::C3D::Screen* m_top = nullptr;
+  Amy::Iron::Drawlist* dl = nullptr;
 };
 
 int main() {
-  amy::registerCxxExceptionHandler();
+  Amy::RegisterCxxExceptionHandler();
   example app;
-  app.run();
+  app.Run();
   return 0;
 }

@@ -2,10 +2,10 @@
 
 #include <amethyst/types.hpp>
 
-namespace amy {
-class image {
+namespace Amy {
+class Image {
  public:
-  enum format {
+  enum Format {
     RGBA,    // bpp == 4
     RGB,     // bpp == 3
     RGB565,  // bpp == 2 (not supported in laoding)
@@ -13,43 +13,43 @@ class image {
     ABGR,    // bpp == 4
     BGRA,    // bpp == 4
   };
-  image() = default;
-  image(cstr& path) { this->load(path); }
-  image(const std::vector<uc>& buf) { this->load(buf); }
-  image(const std::vector<uc>& buf, int w, int h, const format& fmt) {
-    this->copy(buf, w, h, fmt);
+  Image() = default;
+  Image(ksr path) { this->Load(path); }
+  Image(kvr<uc> buf) { this->Load(buf); }
+  Image(kvr<uc> buf, int w, int h, const Format& fmt) {
+    this->Copy(buf, w, h, fmt);
   }
-  ~image() = default;
+  ~Image() = default;
 
-  void load(cstr& path);
-  void load(const std::vector<uc>& buf);
-  void copy(const std::vector<uc>& buf, int w, int h, const format& fmt);
+  void Load(ksr path);
+  void Load(kvr<uc> buf);
+  void Copy(kvr<uc> buf, int w, int h, const Format& fmt);
 
-  std::vector<uc>& getBuffer() { return m_buffer; }
-  std::vector<uc> getBuffer() const { return m_buffer; }
+  vec<uc>& GetBuffer() { return pBuffer; }
+  vec<uc> GetBuffer() const { return pBuffer; }
 
-  int width() const { return m_w; }
-  int height() const { return m_h; }
-  int bpp() const { return getBppOfFmt(m_fmt); }
-  format fmt() const { return m_fmt; }
-  void convert(const format& dst) { convert(*this, dst); }
-  void retile(std::function<ui(int x, int y, int w)> src,
+  int Width() const { return pW; }
+  int Height() const { return pH; }
+  int Bpp() const { return GetBppOfFmt(pFmt); }
+  Format Fmt() const { return pFmt; }
+  void Convert(const Format& dst) { Convert(*this, dst); }
+  void Retile(std::function<ui(int x, int y, int w)> src,
               std::function<ui(int x, int y, int w)> dst) {
-    retile(*this, src, dst);
+    Retile(*this, src, dst);
   }
 
-  uc& operator[](int idx) { return m_buffer[idx]; }
-  uc operator[](int idx) const { return m_buffer[idx]; }
+  uc& operator[](int idx) { return pBuffer[idx]; }
+  uc operator[](int idx) const { return pBuffer[idx]; }
 
-  static void convert(image& img, const format& dst);
-  static void retile(image& img, std::function<ui(int x, int y, int w)> src,
+  static void Convert(Image& img, const Format& dst);
+  static void Retile(Image& img, std::function<ui(int x, int y, int w)> src,
                      std::function<ui(int x, int y, int w)> dst);
-  static int getBppOfFmt(const format& fmt);
+  static int GetBppOfFmt(const Format& fmt);
 
  private:
-  std::vector<uc> m_buffer;
-  int m_w = 0;
-  int m_h = 0;
-  format m_fmt = RGBA;
+  vec<uc> pBuffer;
+  int pW = 0;
+  int pH = 0;
+  Format pFmt = RGBA;
 };
-}  // namespace amy
+}  // namespace Amy
