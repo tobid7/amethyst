@@ -1,4 +1,5 @@
 #include <amethyst/iron.hpp>
+#include <amethyst/utils.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -103,6 +104,12 @@ void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
            scissor == data[i]->ScissorRect && tex == data[i]->Tex) {
       auto c = data[i].get();
 
+      if (!pCheckSize(c->IndexBuf.size(), c->VertexBuf.size())) {
+        throw Error("iron: too much draw data!!!" +
+                    std::format("\nIdx: {}\nVtx: {}", c->IndexBuf.size(),
+                                c->VertexBuf.size()));
+      }
+
       for (int j = 0; j < c->IndexBuf.size(); j++) {
         m_ibuf[m_idx++] = m_vtx + c->IndexBuf[j];
       }
@@ -118,15 +125,34 @@ void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
     C3D::DrawElements(i - start, m_ibuf.data() + start);
   }
   C3D::DepthTest(true);
+  /*std::ofstream off("hello.txt");
+  for (int i = 0; i < m_idx; i++) {
+    auto& v = m_vbuf[m_ibuf[i]];
+    off << std::format("{} -> [{}] [{}] #{:08X}\n", m_ibuf[i], v.pos, v.uv,
+                       v.color);
+  }
+  off.close();
+  throw std::runtime_error("halt");*/
+}
+
+bool Iron::pCheckSize(size_t idx, size_t vtx) {
+  return idx < m_ibuf.size() && vtx < m_vbuf.size();
 }
 
 void Iron::pSetupShader() {
   m_shader = new C3D::Shader();
-  m_shader->Load("romfs:/shaders/lithium.shbin");
+  m_shader->pCode = DVLB_ParseFile((u32*)li_shader, li_shader_size);
+  shaderProgramInit(&m_shader->pProgram);
+  shaderProgramSetVsh(&m_shader->pProgram, &m_shader->pCode->DVLE[0]);
+  AttrInfo_Init(&m_shader->pInfo);
+  AttrInfo_AddLoader(&m_shader->pInfo, 0, GPU_FLOAT, 2);
+  AttrInfo_AddLoader(&m_shader->pInfo, 1, GPU_FLOAT, 2);
+  AttrInfo_AddLoader(&m_shader->pInfo, 2, GPU_UNSIGNED_BYTE, 4);
+  // m_shader->Load("romfs:/shaders/lithium.shbin");
   // m_shader->Compile(__ironshader__);
-  m_shader->Input(GPU_FLOAT, 2);          // pos
-  m_shader->Input(GPU_FLOAT, 2);          // uv
-  m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
+  // m_shader->Input(GPU_FLOAT, 2);          // pos
+  // m_shader->Input(GPU_FLOAT, 2);          // uv
+  // m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
   uLocProj = m_shader->loc("projection");
 }
 
@@ -141,6 +167,9 @@ void Iron::pInitSolidTex() {
   std::vector<uc> pixels(16 * 16 * 4, 0xff);
   m_solid = new Texture();
   m_solid->Load(pixels, 16, 16);
+  if (!m_solid->Ptr()) {
+    throw Error("white tex failed to load!");
+  }
 }
 
 bool Iron::InBox(const fvec2& pos, const fvec2& size, const fvec4& area) {

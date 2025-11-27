@@ -15,8 +15,8 @@ class Iron {
     Vertex(float x, float y, float u, float v, ui clr) {
       pos.x = x;
       pos.y = y;
-      uv.x = x;
-      uv.y = y;
+      uv.x = u;
+      uv.y = v;
       color = clr;
     }
     Vertex(const fvec2& pos, const fvec2& uv, ui clr) {
@@ -33,6 +33,7 @@ class Iron {
   class Command {
    public:
     Command() = default;
+    ~Command() = default;
     using ref = up<Command>;
     Command& Add(const u16& idx) {
       IndexBuf.push_back(VertexBuf.size() + idx);
@@ -100,7 +101,10 @@ class Iron {
       DrawPolyLine(pPath, color, flags, thickness);
       PathClear();
     }
-    void PathFill(ui color) { DrawConvexPolyFilled(pPath, color); }
+    void PathFill(ui color) {
+      DrawConvexPolyFilled(pPath, color);
+      PathClear();
+    }
     void PathArcToN(const fvec2& c, float radius, float a_min, float a_max,
                     int segments);
     void PathFastArcToN(const fvec2& c, float radius, float a_min, float a_max,
@@ -152,6 +156,7 @@ class Iron {
   static void pSetupShader();
   static void pFragConfig();
   static void pInitSolidTex();
+  static bool pCheckSize(size_t idx, size_t vtx);
 
   static std::vector<Vertex, linearAllocator<Vertex>> m_vbuf;
   static std::vector<u16, linearAllocator<u16>> m_ibuf;

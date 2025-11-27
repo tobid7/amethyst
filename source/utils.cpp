@@ -3,14 +3,6 @@
 
 namespace Amy {
 namespace Utils {
-ui fastHash(ksr s) {
-  ui hash = 5381;
-  for (auto& it : s) {
-    hash = (hash * 33) + static_cast<uc>(it);
-  }
-  return hash;
-}
-
 vec<uc> LoadFile2Mem(ksr path) {
   std::ifstream iff(path, std::ios::binary);
   if (!iff) {

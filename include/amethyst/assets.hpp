@@ -1,34 +1,55 @@
 #pragma once
 
+#include <amethyst/id.hpp>
 #include <amethyst/texture.hpp>
 #include <amethyst/types.hpp>
 
 namespace Amy {
-class Assets {
+class AssetMgr {
  public:
-  Assets() = default;
-  ~Assets() = default;
+  AssetMgr() = default;
+  ~AssetMgr() = default;
 
-  void add(ksr id, Asset* v) { pAssets[id] = v; }
-  void remove(ksr id) {
+  void AutoLoad(const ID& name, ksr path);
+
+  void Add(const ID& id, Asset* v) {
+    if (pAssets.count(id)) {
+      throw std::runtime_error("[amy]: assets: " + id.GetName() +
+                               " already exists!");
+    }
+    pAssets[id] = v;
+  }
+
+  void Remove(const ID& id) {
     if (pAssets.count(id)) {
       pAssets.erase(id);
     }
   }
+
   template <typename T>
-  T* get(ksr id) {
+  T* Get(const ID& id) {
     auto r = pAssets.find(id);
     if (r == pAssets.end()) {
-      throw std::runtime_error("[amy] assets: unable to find " + id);
+      throw std::runtime_error("[amy] assets: unable to find " + id.GetName());
     }
     if (auto v = dynamic_cast<T*>(r->second)) {
       return v;
     } else {
-      throw std::runtime_error(id + " is not of type " + typeid(T).name());
+      throw std::runtime_error(id.GetName() + " is not of type " +
+                               typeid(T).name());
     }
   }
 
+  template <typename T>
+  bool IsType(const ID& id) {
+    auto r = pAssets.find(id);
+    if (r == pAssets.end()) {
+      throw std::runtime_error("[amy] assets: unable to find " + id.GetName());
+    }
+    return dynamic_cast<T*>(r->second) != nullptr;
+  }
+
  private:
-  std::map<str, Asset*> pAssets;
+  std::map<ID, Asset*> pAssets;
 };
 }  // namespace Amy

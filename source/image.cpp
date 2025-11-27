@@ -2,7 +2,7 @@
 #include <amethyst/utils.hpp>
 #include <stdexcept>
 
-// #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 namespace Amy {
@@ -74,6 +74,9 @@ int Image::GetBppOfFmt(const Image::Format& fmt) {
       break;
     case RGB565:
       return 2;
+      break;
+    case A8:
+      return 1;
       break;
 
     default:

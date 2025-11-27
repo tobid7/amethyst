@@ -2,7 +2,7 @@
 
 #include <amethyst/c3d.hpp>
 #include <amethyst/utils.hpp>
-#include <pica.hpp>
+// #include <pica.hpp>
 
 namespace Amy {
 
@@ -46,7 +46,7 @@ void C3D::Shader::Load(const std::string& path) {
   auto code = Utils::LoadFile2Mem(path);
   if (!code.size()) {
     throw std::runtime_error(
-        std::format("[amy] unsable to load shader ({})", path));
+        std::format("[amy] unable to load shader ({})", path));
   }
   Load(code);
 }
@@ -60,8 +60,9 @@ void C3D::Shader::Load(const std::vector<uc>& data) {
 }
 
 void C3D::Shader::Compile(const std::string& code) {
-  auto ret = Pica::AssembleCode(code.c_str());
-  Load(ret);
+  throw std::runtime_error("[amy]: unable to compile shader (not allowed)");
+  /*auto ret = Pica::AssembleCode(code.c_str());
+  Load(ret);*/
 }
 
 void C3D::Shader::Use() {

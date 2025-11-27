@@ -26,14 +26,14 @@ class Texture : public Asset {
   ivec2& Size() { return pSize; }
   Rect& Uv() { return pUv; }
 
-  C3D_Tex* Ptr() { return pLoaded ? &pTex : nullptr; }
+  C3D_Tex* Ptr() { return pLoaded ? pTex : nullptr; }
 
   void Bind(int reg = 0);
 
  private:
-  C3D_Tex pTex;
+  C3D_Tex* pTex = nullptr;
   ivec2 pSize;
-  Rect pUv;
+  Rect pUv = fvec4(0, 1, 1, 0);
   bool pLoaded = false;
 };
 }  // namespace Amy

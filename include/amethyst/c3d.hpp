@@ -53,7 +53,7 @@ class C3D {
     void SetMat4(int loc, const mat4& m);
     int loc(ksr name);
 
-   private:
+    // private:
     C3D_AttrInfo pInfo;
     shaderProgram_s pProgram;
     DVLB_s* pCode;

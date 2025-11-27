@@ -2,6 +2,7 @@
 
 #include <amethyst/asset.hpp>
 #include <amethyst/types.hpp>
+#include <amethyst/utils.hpp>
 
 namespace Amy {
 class App {
