@@ -49,6 +49,17 @@ class AssetMgr {
     return dynamic_cast<T*>(r->second) != nullptr;
   }
 
+  template <typename T>
+  size_t Count() const {
+    size_t ret = 0;
+    for (auto& it : pAssets) {
+      if (dynamic_cast<T*>(it.second)) {
+        ret++;
+      }
+    }
+    return ret;
+  }
+
  private:
   std::map<ID, Asset*> pAssets;
 };

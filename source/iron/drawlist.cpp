@@ -16,7 +16,7 @@ enum LiPathRectFlags_ : Amy::ui {
 namespace Amy {
 constexpr auto __pi = std::numbers::pi;
 
-void Iron::Drawlist::Merge(Iron::Drawlist* list) {
+void Iron::Drawlist::Merge(Iron::Drawlist *list) {
   for (size_t i = 0; i < list->pData.size(); i++) {
     pData.push_back(std::move(list->pData[i]));
   }
@@ -33,7 +33,7 @@ Iron::Command::ref Iron::Drawlist::NewCommand() {
   return ret;
 }
 
-void Iron::Drawlist::clipCmd(Command* ptr) {
+void Iron::Drawlist::clipCmd(Command *ptr) {
   if (!ClipRects.empty()) {
     ptr->ScissorOn = true;
     ptr->ScissorRect = ivec4(ClipRects.top());
@@ -44,7 +44,7 @@ void Iron::Drawlist::Push(Command::ref cmd) { pData.push_back(std::move(cmd)); }
 
 void Iron::Drawlist::DrawSolid() { pTex = Iron::WhiteTex(); }
 
-void Iron::Drawlist::PathArcToN(const fvec2& c, float radius, float a_min,
+void Iron::Drawlist::PathArcToN(const fvec2 &c, float radius, float a_min,
                                 float a_max, int segments) {
   // pathAdd(c)
   PathReserve(segments + 1);
@@ -54,7 +54,7 @@ void Iron::Drawlist::PathArcToN(const fvec2& c, float radius, float a_min,
   }
 }
 
-void Iron::Drawlist::PathFastArcToN(const fvec2& c, float r, float amin,
+void Iron::Drawlist::PathFastArcToN(const fvec2 &c, float r, float amin,
                                     float amax, int s) {
   /**
    * Funcion with less division overhead
@@ -68,7 +68,7 @@ void Iron::Drawlist::PathFastArcToN(const fvec2& c, float r, float amin,
   }
 }
 
-void Iron::Drawlist::PathRect(const fvec2& a, const fvec2& b, float rounding) {
+void Iron::Drawlist::PathRect(const fvec2 &a, const fvec2 &b, float rounding) {
   if (rounding == 0.f) {
     PathAdd(a);
     PathAdd(fvec2(b.x, a.y));
@@ -100,7 +100,7 @@ void Iron::Drawlist::PathRect(const fvec2& a, const fvec2& b, float rounding) {
   }
 }
 
-void Iron::Drawlist::PathRectEx(const fvec2& a, const fvec2& b, float rounding,
+void Iron::Drawlist::PathRectEx(const fvec2 &a, const fvec2 &b, float rounding,
                                 ui flags) {
   if (rounding == 0.f) {
     PathAdd(a);
@@ -150,35 +150,35 @@ void Iron::Drawlist::PathRectEx(const fvec2& a, const fvec2& b, float rounding,
   }
 }
 
-void Iron::Drawlist::DrawRect(const fvec2& pos, const fvec2& size, ui color,
+void Iron::Drawlist::DrawRect(const fvec2 &pos, const fvec2 &size, ui color,
                               int thickness) {
   PathRect(pos, pos + size);
   PathStroke(color, thickness, 1);
 }
 
-void Iron::Drawlist::DrawRectFilled(const fvec2& pos, const fvec2& size,
+void Iron::Drawlist::DrawRectFilled(const fvec2 &pos, const fvec2 &size,
                                     ui color) {
   PathRect(pos, pos + size);
   PathFill(color);
 }
 
-void Iron::Drawlist::DrawTriangle(const fvec2& a, const fvec2& b,
-                                  const fvec2& c, ui color, int thickness) {
+void Iron::Drawlist::DrawTriangle(const fvec2 &a, const fvec2 &b,
+                                  const fvec2 &c, ui color, int thickness) {
   PathAdd(a);
   PathAdd(b);
   PathAdd(c);
   PathStroke(color, thickness, 1);
 }
 
-void Iron::Drawlist::DrawTriangleFilled(const fvec2& a, const fvec2& b,
-                                        const fvec2& c, ui color) {
+void Iron::Drawlist::DrawTriangleFilled(const fvec2 &a, const fvec2 &b,
+                                        const fvec2 &c, ui color) {
   PathAdd(a);
   PathAdd(b);
   PathAdd(c);
   PathFill(color);
 }
 
-void Iron::Drawlist::DrawCircle(const fvec2& center, float rad, ui color,
+void Iron::Drawlist::DrawCircle(const fvec2 &center, float rad, ui color,
                                 int segments, int thickness) {
   if (segments <= 0) {
     // Auto Segment
@@ -186,11 +186,11 @@ void Iron::Drawlist::DrawCircle(const fvec2& center, float rad, ui color,
     float am = (__pi * 2.0f) * ((float)segments) / (float)segments;
     PathArcToN(center, rad, 0.f, am, segments);
   }
-  DrawSolid();  // Only Solid Color Supported
+  DrawSolid(); // Only Solid Color Supported
   PathStroke(color, thickness, 1);
 }
 
-void Iron::Drawlist::DrawCircleFilled(const fvec2& center, float rad, ui color,
+void Iron::Drawlist::DrawCircleFilled(const fvec2 &center, float rad, ui color,
                                       int segments) {
   if (segments <= 0) {
     // Auto Segment
@@ -201,7 +201,7 @@ void Iron::Drawlist::DrawCircleFilled(const fvec2& center, float rad, ui color,
   PathFill(color);
 }
 
-void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2>& points, ui clr,
+void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2> &points, ui clr,
                                   ui flags, int thickness) {
   if (points.size() < 2) {
     return;
@@ -223,17 +223,17 @@ void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2>& points, ui clr,
   Push(std::move(cmd));
 }
 
-void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2>& points,
+void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2> &points,
                                           ui clr) {
   if (points.size() < 3) {
-    return;  // Need at least three points
+    return; // Need at least three points
   }
   auto cmd = NewCommand();
   CmdConvexPolyFilled(cmd.get(), points, clr, pTex);
   Push(std::move(cmd));
 }
 
-void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
+void Iron::Drawlist::DrawText(const fvec2 &pos, const std::string &text,
                               ui color) {
   /*if (!pCurrentFont) {
     return;
@@ -247,8 +247,8 @@ void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
   }*/
 }
 
-void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
-                                ui color, ui flags, const fvec2& box) {
+void Iron::Drawlist::DrawTextEx(const fvec2 &p, const std::string &text,
+                                ui color, ui flags, const fvec2 &box) {
   /*if (!pCurrentFont) {
     return;
   }
@@ -261,9 +261,9 @@ void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
   }*/
 }
 
-void Iron::Drawlist::DrawLine(const fvec2& a, const fvec2& b, ui color, int t) {
+void Iron::Drawlist::DrawLine(const fvec2 &a, const fvec2 &b, ui color, int t) {
   PathAdd(a);
   PathAdd(b);
   PathStroke(color, t);
 }
-}  // namespace Amy
+} // namespace Amy

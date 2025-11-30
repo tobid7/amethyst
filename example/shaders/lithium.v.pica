@@ -16,8 +16,7 @@
 .alias in_uvc 		v1
 .alias in_col	    v2
 
-.entry vmain
-.proc vmain
+.proc main
 	mov r0.xy, in_xy.xy
 	mov r0.w, ones
 

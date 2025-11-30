@@ -11,25 +11,35 @@
 
 namespace Amy {
 template <typename T>
-class linearAllocator {
+class LinearAllocator {
  public:
   using value_type = T;
-  linearAllocator() = default;
+  LinearAllocator() noexcept = default;
   template <typename U>
-  constexpr linearAllocator(const linearAllocator<U>&) noexcept {}
+  constexpr LinearAllocator(const LinearAllocator<U>&) noexcept {}
 
   T* allocate(std::size_t n) {
-    if (n > std::allocator_traits<linearAllocator>::max_size(*this)) {
+    if (n > max_size()) {
       throw std::bad_alloc();
     }
     return static_cast<T*>(linearAlloc(n * sizeof(T)));
   }
   void deallocate(T* p, std::size_t) noexcept { linearFree(p); }
 
-  friend bool operator==(const linearAllocator, const linearAllocator) {
+  template <class U, class... Args>
+  void construct(U* p, Args&&... args) {
+    ::new ((void*)p) U(std::forward<Args>(args)...);
+  }
+
+  template <class U>
+  void destroy(U* p) {
+    p->~U();
+  }
+
+  friend bool operator==(const LinearAllocator, const LinearAllocator) {
     return true;
   }
-  friend bool operator!=(const linearAllocator, const linearAllocator) {
+  friend bool operator!=(const LinearAllocator, const LinearAllocator) {
     return false;
   }
 

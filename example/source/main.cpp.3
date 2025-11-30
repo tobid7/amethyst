@@ -1,0 +1,91 @@
+#include <3ds.h>
+#include <citro3d.h>
+#include <string.h>
+
+#include <amethyst.hpp>
+
+struct vertex {
+  vertex(Amy::fvec2 p, Amy::fvec2 tc, Amy::ui c) {
+    pos = pos;
+    uv = tc;
+    color = c;
+  }
+  vertex() = default;
+  Amy::fvec2 pos;
+  Amy::fvec2 uv;
+  Amy::ui color;
+};
+
+std::vector<vertex, Amy::LinearAllocator<vertex>> vbuf;
+static int uLoc_projection = 0;
+static Amy::C3D::Shader* Shader = nullptr;
+static Amy::AssetMgr Assets;
+
+static void sceneInit(void) {
+  Shader = new Amy::C3D::Shader("romfs:/shaders/li2.shbin");
+  uLoc_projection = Shader->loc("projection");
+  Shader->Input(GPU_FLOAT, 2);
+  Shader->Input(GPU_FLOAT, 2);
+  Shader->Input(GPU_UNSIGNED_BYTE, 4);
+
+  vbuf.resize(6);
+
+  vbuf[0] = vertex(Amy::fvec2(300, 40), Amy::fvec2(1, 1), 0xffffffff);
+  vbuf[1] = vertex(Amy::fvec2(100, 40), Amy::fvec2(0, 1), 0xffffffff);
+  vbuf[2] = vertex(Amy::fvec2(100, 200), Amy::fvec2(0, 0), 0xffffffff);
+  vbuf[3] = vertex(Amy::fvec2(100, 200), Amy::fvec2(0, 0), 0xffffffff);
+  vbuf[4] = vertex(Amy::fvec2(300, 200), Amy::fvec2(1, 0), 0xffffffff);
+  vbuf[5] = vertex(Amy::fvec2(300, 40), Amy::fvec2(1, 1), 0xffffffff);
+
+  Amy::C3D::BufCfg<3>(vbuf.data(), sizeof(vertex));
+
+  Amy::C3D::Frag::Edit();
+  Amy::C3D::Frag::Src(C3D_Both, GPU_TEXTURE0);
+  Amy::C3D::Frag::Func(C3D_Both, GPU_MODULATE);
+
+  Assets.AutoLoad("white", "romfs:/white.png");
+}
+
+static void sceneRender(void) {
+  Amy::C3D::DepthTest(false);
+  Shader->Use();
+  Shader->SetMat4(uLoc_projection, Amy::mat4::ortho(0, 400, 240, 0, 1, -1));
+  Assets.Get<Amy::Texture>("white")->Bind();
+  Amy::C3D::DrawArrays(0, vbuf.size());
+  Amy::C3D::DepthTest(true);
+}
+
+static void sceneExit(void) {
+  vbuf.clear();
+  delete Shader;
+}
+
+int main() {
+  Amy::RegisterCxxExceptionHandler();
+  Amy::Ctr::Init();
+  Amy::C3D::Init();
+  auto Top = Amy::C3D::CreateScreen(GFX_TOP);
+
+  sceneInit();
+
+  while (aptMainLoop()) {
+    hidScanInput();
+
+    u32 kDown = hidKeysDown();
+    if (kDown & KEY_START) break;
+
+    Amy::C3D::StartFrame();
+    Top->Clear();
+    Top->Use();
+    sceneRender();
+    Amy::C3D::EndFrame();
+  }
+
+  // Deinitialize the scene
+  sceneExit();
+
+  Amy::C3D::Deinit();
+  gfxExit();
+  romfsExit();
+  return 0;
+}

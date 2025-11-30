@@ -5,6 +5,7 @@
 #include <amethyst/c3d.hpp>
 #include <amethyst/ctru.hpp>
 #include <amethyst/image.hpp>
+#include <amethyst/iron.hpp>
 #include <amethyst/renderer.hpp>
 #include <amethyst/texture.hpp>
 

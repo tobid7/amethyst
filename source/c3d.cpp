@@ -40,7 +40,13 @@ void C3D::DeleteScreen(C3D::Screen* screen) { delete screen; }
 
 C3D::Shader::Shader(const std::string& path) { Load(path); }
 
-C3D::Shader::~Shader() {}
+C3D::Shader::~Shader() {
+  if (pCode) {
+    shaderProgramFree(&pProgram);
+    DVLB_Free(pCode);
+    pCode = nullptr;
+  }
+}
 
 void C3D::Shader::Load(const std::string& path) {
   auto code = Utils::LoadFile2Mem(path);
@@ -66,7 +72,7 @@ void C3D::Shader::Compile(const std::string& code) {
 }
 
 void C3D::Shader::Use() {
-  C3D_BindProgram(&pProgram);
+  // C3D_BindProgram(&pProgram);
   // for some reason i need both ???
   // code works perfectly without C3D_BindProgram
   // but nor withour shaderProgramUse ...

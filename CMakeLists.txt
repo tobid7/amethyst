@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 # target_link_libraries(${PROJECT_NAME} PUBLIC pica::pica)
 if(${AMY_BUILD_3DS})
     target_link_libraries(${PROJECT_NAME} PUBLIC m z ctru citro3d)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_3DS )
+    target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_3DS)
 endif()
 
 add_subdirectory(example)

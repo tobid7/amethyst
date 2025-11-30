@@ -158,8 +158,8 @@ class Iron {
   static void pInitSolidTex();
   static bool pCheckSize(size_t idx, size_t vtx);
 
-  static std::vector<Vertex, linearAllocator<Vertex>> m_vbuf;
-  static std::vector<u16, linearAllocator<u16>> m_ibuf;
+  static std::vector<Vertex, LinearAllocator<Vertex>> m_vbuf;
+  static std::vector<u16, LinearAllocator<u16>> m_ibuf;
   static int uLocProj;
   static C3D::Shader* m_shader;
   static mat4 m_mtx;

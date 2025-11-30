@@ -57,13 +57,14 @@ unsigned char li_shader[] = {
   };
 // clang-format on
 size_t li_shader_size = 0x124;
-std::vector<Iron::Vertex, linearAllocator<Iron::Vertex>> Iron::m_vbuf;
-std::vector<u16, linearAllocator<u16>> Iron::m_ibuf;
+std::vector<Iron::Vertex, LinearAllocator<Iron::Vertex>> Iron::m_vbuf;
+std::vector<u16, LinearAllocator<u16>> Iron::m_ibuf;
 int Iron::uLocProj = 0;
 C3D::Shader* Iron::m_shader = nullptr;
 mat4 Iron::m_mtx;
 int Iron::m_idx = 0, Iron::m_vtx = 0;
 Texture* Iron::m_solid = nullptr;
+C3D_Mtx __m;
 
 void Iron::Init() {
   pSetupShader();
@@ -79,9 +80,13 @@ void Iron::NewFrame() {
 
 void Iron::DrawOn(C3D::Screen* screen) {
   m_shader->Use();
-  m_mtx = mat4::ortho(0.f, (float)screen->Width(), (float)screen->Height(), 0.f,
-                      1.f, -1.f);
-  m_shader->SetMat4(uLocProj, m_mtx);
+  Mtx_Identity(&__m);
+  Mtx_OrthoTilt(&__m, 0, (float)screen->Width(), (float)screen->Height(), 0.f,
+                1.f, -1.f, true);
+  // m_mtx = mat4::ortho(0.f, (float)screen->Width(), (float)screen->Height(),
+  // 0.f,
+  //                     1.f, -1.f);
+  m_shader->SetMat4(uLocProj, &__m);
 }
 
 void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
@@ -148,11 +153,11 @@ void Iron::pSetupShader() {
   AttrInfo_AddLoader(&m_shader->pInfo, 0, GPU_FLOAT, 2);
   AttrInfo_AddLoader(&m_shader->pInfo, 1, GPU_FLOAT, 2);
   AttrInfo_AddLoader(&m_shader->pInfo, 2, GPU_UNSIGNED_BYTE, 4);
-  // m_shader->Load("romfs:/shaders/lithium.shbin");
-  // m_shader->Compile(__ironshader__);
-  // m_shader->Input(GPU_FLOAT, 2);          // pos
-  // m_shader->Input(GPU_FLOAT, 2);          // uv
-  // m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
+  /* m_shader->Load("romfs:/shaders/lithium.shbin");
+   // m_shader->Compile(__ironshader__);
+   m_shader->Input(GPU_FLOAT, 2);          // pos
+   m_shader->Input(GPU_FLOAT, 2);          // uv
+   m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color*/
   uLocProj = m_shader->loc("projection");
 }
 

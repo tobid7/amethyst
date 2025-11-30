@@ -56,7 +56,7 @@ class C3D {
     // private:
     C3D_AttrInfo pInfo;
     shaderProgram_s pProgram;
-    DVLB_s* pCode;
+    DVLB_s* pCode = nullptr;
     int pReg = 0;
   };
 
