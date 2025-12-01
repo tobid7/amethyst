@@ -12,3 +12,7 @@
 namespace Amy {
 void RegisterCxxExceptionHandler();
 }
+
+using Iron = Amy::Iron;
+namespace Ctr = Amy::Ctr;
+using C3D = Amy::C3D;

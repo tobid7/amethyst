@@ -48,9 +48,9 @@ class Iron {
     std::vector<u16> IndexBuf;
     ivec4 ScissorRect;
     bool ScissorOn = false;
-    int Layer;
-    int Index;
-    Texture* Tex;
+    int Layer = 0;
+    int Index = 0;
+    Texture* Tex = nullptr;
   };
   class Drawlist {
    public:
@@ -131,6 +131,7 @@ class Iron {
   ~Iron() = default;
 
   static void Init();
+  static void Exit();
   static void NewFrame();
   static void DrawOn(C3D::Screen* screen);
   static void Draw(const std::vector<Command::ref>& data);
@@ -152,6 +153,9 @@ class Iron {
   static bool InBox(const fvec2& a, const fvec2& b, const fvec2& c,
                     const fvec4& area);
 
+  static ui VerticesDrawn() { return VertexCount; }
+  static ui IndicesDrawn() { return IndexCount; }
+
  private:
   static void pSetupShader();
   static void pFragConfig();
@@ -165,5 +169,7 @@ class Iron {
   static mat4 m_mtx;
   static int m_idx, m_vtx;
   static Texture* m_solid;
+  static ui VertexCount;
+  static ui IndexCount;
 };
 }  // namespace Amy

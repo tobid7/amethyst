@@ -20,7 +20,7 @@ class LinearAllocator {
 
   T* allocate(std::size_t n) {
     if (n > max_size()) {
-      throw std::bad_alloc();
+      throw std::runtime_error("[Amy] LinearAllocator: Bad alloc!");
     }
     return static_cast<T*>(linearAlloc(n * sizeof(T)));
   }

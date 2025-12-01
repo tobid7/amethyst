@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cinttypes>
 #include <functional>
+#include <format>
 #include <map>
 #include <memory>
 #include <numbers>

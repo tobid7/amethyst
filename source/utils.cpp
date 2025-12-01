@@ -17,6 +17,22 @@ vec<uc> LoadFile2Mem(ksr path) {
   return res;
 }
 
+str FormatBytes(ull bytes) {
+  static const vec<str> endings = {
+      "B", "KB", "MB", "GB", "TB", "Unk",
+  };
+  int i = 0;
+  double b = bytes;
+  while (b > 1024) {
+    i++;
+    b /= 1024;
+  }
+  if (i >= (int)endings.size()) {
+    i = (int)endings.size() - 1;
+  }
+  return std::format("{:.1f} {}", b, endings[i]);
+}
+
 ui HashMemory(kvr<uc> data) {
   ui hash = 4477;
   for (auto& it : data) {

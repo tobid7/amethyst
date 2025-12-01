@@ -66,6 +66,8 @@ void Texture::Load(kvr<uc> pixels, int w, int h, int bpp, Image::Format fmt) {
   if (!Utils::IsSingleBitNum(pSize.y)) {
     pSize.y = Utils::NextPow2(pSize.y);
   }
+  pUv = Amy::fvec4(0, 1.f, (float)w / (float)pSize.x,
+                   1.f - ((float)h / (float)pSize.y));
   auto filter = GPU_NEAREST;
   auto Format = image2TexFmt(fmt);
   pTex = new C3D_Tex;

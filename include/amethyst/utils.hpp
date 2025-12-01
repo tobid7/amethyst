@@ -9,6 +9,7 @@ class Error : public std::runtime_error {
 };
 namespace Utils {
 vec<uc> LoadFile2Mem(ksr path);
+str FormatBytes(ull bytes);
 ui HashMemory(kvr<uc> data);
 ui NextPow2(ui v);
 bool IsSingleBitNum(ui v);

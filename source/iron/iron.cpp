@@ -3,18 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#define catch2()                                                        \
-  ;                                                                     \
-  ({                                                                    \
-    std::cout << std::format("{}:{}", __FILE__, __LINE__) << std::endl; \
-    while (aptMainLoop()) {                                             \
-      hidScanInput();                                                   \
-      if (hidKeysDown() & KEY_A) {                                      \
-        break;                                                          \
-      }                                                                 \
-    }                                                                   \
-  })
-
 namespace Amy {
 const char* __ironshader__ = R"(; LI7 Shader
 ; Constants
@@ -64,7 +52,8 @@ C3D::Shader* Iron::m_shader = nullptr;
 mat4 Iron::m_mtx;
 int Iron::m_idx = 0, Iron::m_vtx = 0;
 Texture* Iron::m_solid = nullptr;
-C3D_Mtx __m;
+ui Iron::VertexCount = 0;
+ui Iron::IndexCount = 0;
 
 void Iron::Init() {
   pSetupShader();
@@ -73,20 +62,25 @@ void Iron::Init() {
   pInitSolidTex();
 }
 
+void Iron::Exit() {
+  delete m_solid;
+  delete m_shader;
+  m_vbuf.clear();
+  m_ibuf.clear();
+}
+
 void Iron::NewFrame() {
+  VertexCount = m_vtx;
+  IndexCount = m_idx;
   m_idx = 0;
   m_vtx = 0;
 }
 
 void Iron::DrawOn(C3D::Screen* screen) {
   m_shader->Use();
-  Mtx_Identity(&__m);
-  Mtx_OrthoTilt(&__m, 0, (float)screen->Width(), (float)screen->Height(), 0.f,
-                1.f, -1.f, true);
-  // m_mtx = mat4::ortho(0.f, (float)screen->Width(), (float)screen->Height(),
-  // 0.f,
-  //                     1.f, -1.f);
-  m_shader->SetMat4(uLocProj, &__m);
+  m_mtx = mat4::ortho(0.f, (float)screen->Width(), (float)screen->Height(), 0.f,
+                      1.f, -1.f);
+  m_shader->SetMat4(uLocProj, m_mtx);
 }
 
 void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
@@ -102,7 +96,7 @@ void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
     }
     auto scissorOn = data[i]->ScissorOn;
     auto scissor = data[i]->ScissorRect;
-    auto start = i;
+    auto start = m_idx;
 
     // Loop until a statgechange and copy all data into Vertex/index buf
     while (i < data.size() && scissorOn == data[i]->ScissorOn &&
@@ -119,7 +113,7 @@ void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
         m_ibuf[m_idx++] = m_vtx + c->IndexBuf[j];
       }
       for (int j = 0; j < c->VertexBuf.size(); j++) {
-        m_vbuf[m_vtx++] = c->VertexBuf[j];
+        m_vbuf[m_vtx++] = std::move(c->VertexBuf[j]);
       }
       i++;
     }
@@ -127,17 +121,9 @@ void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
     ///// SCISSOR LOGIC END /////
     tex->Bind();
     C3D::BufCfg<3>(m_vbuf.data(), sizeof(Vertex));
-    C3D::DrawElements(i - start, m_ibuf.data() + start);
+    C3D::DrawElements(m_idx - start, m_ibuf.data() + start);
   }
   C3D::DepthTest(true);
-  /*std::ofstream off("hello.txt");
-  for (int i = 0; i < m_idx; i++) {
-    auto& v = m_vbuf[m_ibuf[i]];
-    off << std::format("{} -> [{}] [{}] #{:08X}\n", m_ibuf[i], v.pos, v.uv,
-                       v.color);
-  }
-  off.close();
-  throw std::runtime_error("halt");*/
 }
 
 bool Iron::pCheckSize(size_t idx, size_t vtx) {
@@ -153,12 +139,13 @@ void Iron::pSetupShader() {
   AttrInfo_AddLoader(&m_shader->pInfo, 0, GPU_FLOAT, 2);
   AttrInfo_AddLoader(&m_shader->pInfo, 1, GPU_FLOAT, 2);
   AttrInfo_AddLoader(&m_shader->pInfo, 2, GPU_UNSIGNED_BYTE, 4);
-  /* m_shader->Load("romfs:/shaders/lithium.shbin");
-   // m_shader->Compile(__ironshader__);
-   m_shader->Input(GPU_FLOAT, 2);          // pos
-   m_shader->Input(GPU_FLOAT, 2);          // uv
-   m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color*/
-  uLocProj = m_shader->loc("projection");
+  // TODO: FUNKTIONIRT NICHT AHHHHHHHHHH
+  /*m_shader->Load("romfs:/shaders/lithium.shbin");
+  // m_shader->Compile(__ironshader__);
+  m_shader->Input(GPU_FLOAT, 2);          // pos
+  m_shader->Input(GPU_FLOAT, 2);          // uv
+  m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
+  uLocProj = m_shader->loc("projection");*/
 }
 
 void Iron::pFragConfig() {
