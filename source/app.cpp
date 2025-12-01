@@ -7,7 +7,7 @@
 namespace Amy {
 void App::Run() {
   pLast = Utils::GetTimeNano();
-  while (aptMainLoop()) {
+  while (aptMainLoop() && !pExit) {
     ull c = Utils::GetTimeNano();
     pDelta = static_cast<double>(static_cast<double>(c) -
                                  static_cast<double>(pLast)) *
