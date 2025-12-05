@@ -52,6 +52,36 @@ class Iron {
     int Index = 0;
     Texture* Tex = nullptr;
   };
+
+  class Font {
+   public:
+    struct Codepoint {
+      ui Cp = 0;
+      fvec4 Uv;
+      Texture* Tex;
+      fvec2 Size;
+      float Offset = 0;  // Unused??
+      bool Valid = true;
+    };
+
+    Font() = default;
+    ~Font() = default;
+
+    void LoadTTF(ksr path, int pxh = 32);
+    void LoadTTF(kvr<uc> data, int pxh = 32);
+
+    Codepoint& GetCodepoint(ui c);
+
+    fvec2 GetTextBounds(ksr text, float scale);
+    void CmdTextEx(vec<Command::ref>& cmds, const fvec2& pos, ui color,
+                   float scale, ksr text, ui flags = 0, const fvec2& box = 0);
+    void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture* tex);
+
+    int PxHeight;
+    int PxFactor = 24;
+    vec<Texture*> Textures;
+  };
+
   class Drawlist {
    public:
     Drawlist() { DrawSolid(); }

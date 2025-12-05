@@ -3,7 +3,6 @@
 #include <amethyst/app.hpp>
 #include <amethyst/assets.hpp>
 #include <amethyst/c3d.hpp>
-#include <amethyst/ctru.hpp>
 #include <amethyst/image.hpp>
 #include <amethyst/iron.hpp>
 #include <amethyst/renderer.hpp>
@@ -14,5 +13,4 @@ void RegisterCxxExceptionHandler();
 }
 
 using Iron = Amy::Iron;
-namespace Ctr = Amy::Ctr;
 using C3D = Amy::C3D;

@@ -70,6 +70,80 @@ ull GetTimeMilli() {
       .count();
 }
 
+void String2U16(us* res, const std::string& src, size_t max) {
+  /// GOT FORCED TO REPLACE std::wstring_convert by some
+  /// manual work as it got removed in cxx20
+  /// TODO ///
+  /// ADD SOME ERROR API IN HERE
+  if (max == 0) return;
+  size_t len = 0;
+  size_t i = 0;
+  while (i < src.size() && len < max) {
+    uc c = src[i];
+
+    if (c < 0x80) {
+      // 1byte
+      res[len++] = c;
+      i++;
+    } else if ((c >> 5) == 0x6) {
+      // 2byte
+      if (i + 1 >= src.size())
+        throw std::invalid_argument("Invalid UTF-8 sequence");
+      res[len++] = ((c & 0x1F) << 6) | (src[i + 1] & 0x3F);
+      i += 2;
+    } else if ((c >> 4) == 0xE) {
+      // 3byte
+      if (i + 2 >= src.size())
+        throw std::invalid_argument("Invalid UTF-8 sequence");
+      res[len++] =
+          ((c & 0x0F) << 12) | ((src[i + 1] & 0x3F) << 6) | (src[i + 2] & 0x3F);
+      i += 3;
+    } else if ((c >> 3) == 0x1E) {
+      // 4byte
+      if (i + 3 >= src.size())
+        throw std::invalid_argument("Invalid UTF-8 sequence");
+      ui codepoint = ((c & 0x07) << 18) | ((src[i + 1] & 0x3F) << 12) |
+                     ((src[i + 2] & 0x3F) << 6) | (src[i + 3] & 0x3F);
+      codepoint -= 0x10000;
+      res[len++] = 0xD800 | ((codepoint >> 10) & 0x3FF);
+      res[len++] = 0xDC00 | (codepoint & 0x3FF);
+      i += 4;
+    } else {
+      return;
+    }
+  }
+}
+
+std::string U16toU8(us* in, size_t max) {
+  /// GOT FORCED TO REPLACE std::wstring_convert by some
+  /// manual work as it got removed in cxx20
+  if (!in || max == 0) {
+    return "";
+  }
+
+  std::string result;
+  result.reserve(max * 3);
+
+  for (size_t i = 0; i < max; i++) {
+    uint16_t c = in[i];
+
+    if (c < 0x80) {
+      result.push_back(static_cast<char>(c));
+    } else if (c < 0x800) {
+      result.push_back(static_cast<char>(0xC0 | (c >> 6)));
+      result.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+    } else if (c < 0x10000) {
+      result.push_back(static_cast<char>(0xE0 | (c >> 12)));
+      result.push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+      result.push_back(static_cast<char>(0x80 | (c & 0x3F)));
+    } else {
+      continue;
+    }
+  }
+
+  return result;
+}
+
 namespace Image {
 void ReverseBuf(vec<uc>& buf, int w, int h, int c) {
   vec<uc> cpy = buf;

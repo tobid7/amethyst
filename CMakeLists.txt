@@ -20,7 +20,6 @@ add_library(${PROJECT_NAME} STATIC
     source/texture.cpp
     source/utils.cpp
     source/c3d.cpp
-    source/ctru.cpp
     source/iron/iron.cpp
     source/iron/drawlist.cpp
     source/maths/mat.cpp
@@ -29,6 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 #target_link_libraries(${PROJECT_NAME} PUBLIC pica::pica)
 target_link_libraries(${PROJECT_NAME} PUBLIC m z ctru citro3d)
 target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_3DS AMY_STB_IMAGE=${AMY_BUILD_STB_IMAGE})
+target_compile_options(${PROJECT_NAME} PUBLIC -Wno-psabi)
 
 add_subdirectory(example)
 

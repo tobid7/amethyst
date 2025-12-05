@@ -1,7 +1,6 @@
 #include <3ds.h>
 
 #include <amethyst/app.hpp>
-#include <amethyst/ctru.hpp>
 #include <amethyst/utils.hpp>
 
 namespace Amy {

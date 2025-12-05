@@ -4,7 +4,8 @@
 class Example : public Amy::App {
  public:
   Example() {
-    Ctr::Init();
+    gfxInitDefault();
+    romfsInit();
     consoleInit(GFX_BOTTOM, NULL);
     C3D::Init();
     Top = C3D::CreateScreen(GFX_TOP);
@@ -19,6 +20,8 @@ class Example : public Amy::App {
     delete Mgr;
     Iron::Exit();
     C3D::Deinit();
+    romfsExit();
+    gfxExit();
   }
 
   void Main() {
