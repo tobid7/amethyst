@@ -83,7 +83,7 @@ void Iron::DrawOn(C3D::Screen* screen) {
   m_shader->SetMat4(uLocProj, m_mtx);
 }
 
-void Iron::Draw(const std::vector<Iron::Command::ref>& data) {
+void Iron::Draw(const std::vector<Iron::Command::Ref>& data) {
   // disable depthtest cause we have no z buffer
   C3D::DepthTest(false);
   pFragConfig();

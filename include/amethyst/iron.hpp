@@ -34,7 +34,8 @@ class Iron {
    public:
     Command() = default;
     ~Command() = default;
-    using ref = up<Command>;
+    AMY_UNIQUE(Command)
+
     Command& Add(const u16& idx) {
       IndexBuf.push_back(VertexBuf.size() + idx);
       return *this;
@@ -66,20 +67,26 @@ class Iron {
 
     Font() = default;
     ~Font() = default;
+    AMY_SHARED(Font)
 
     void LoadTTF(ksr path, int pxh = 32);
     void LoadTTF(kvr<uc> data, int pxh = 32);
+    /**
+     * Bitmap Font BTW
+     */
+    void LoadBMF(ksr path);
 
     Codepoint& GetCodepoint(ui c);
 
     fvec2 GetTextBounds(ksr text, float scale);
-    void CmdTextEx(vec<Command::ref>& cmds, const fvec2& pos, ui color,
+    void CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
                    float scale, ksr text, ui flags = 0, const fvec2& box = 0);
     void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture* tex);
 
     int PxHeight;
     int PxFactor = 24;
     vec<Texture*> Textures;
+    std::map<u32, Codepoint> pCodeMap;
   };
 
   class Drawlist {
@@ -93,11 +100,11 @@ class Iron {
     Drawlist(Drawlist&&) noexcept = default;
     Drawlist& operator=(Drawlist&&) noexcept = default;
 
-    std::vector<Command::ref>& Data() { return pData; }
+    std::vector<Command::Ref>& Data() { return pData; }
 
     void Merge(Drawlist* list);
-    Command::ref NewCommand();
-    void Push(Command ::ref cmd);
+    Command::Ref NewCommand();
+    void Push(Command ::Ref cmd);
     void Clear();
 
     void DrawSolid();
@@ -147,14 +154,15 @@ class Iron {
       if (!ClipRects.empty()) ClipRects.pop();
     }
 
-    operator std::vector<Command::ref>&() { return pData; }
+    operator std::vector<Command::Ref>&() { return pData; }
 
    private:
     void clipCmd(Command* ptr);
-    std::vector<Command::ref> pData;
+    std::vector<Command::Ref> pData;
     std::vector<fvec2> pPath;
     Texture* pTex = nullptr;
     std::stack<fvec4> ClipRects;
+    Font* pCurrentFont;
     int pLayer = 0;
   };
   Iron() = default;
@@ -164,7 +172,7 @@ class Iron {
   static void Exit();
   static void NewFrame();
   static void DrawOn(C3D::Screen* screen);
-  static void Draw(const std::vector<Command::ref>& data);
+  static void Draw(const std::vector<Command::Ref>& data);
   static Texture* WhiteTex() { return m_solid; }
 
   /** Static renderer utility funcs */

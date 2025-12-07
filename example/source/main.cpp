@@ -41,10 +41,11 @@ class Example : public Amy::App {
     Top->Clear();
     Top->Use();
     dl->DrawTex(Mgr->Get<Amy::Texture>("icon"));
-    dl->DrawRectFilled(Amy::fvec2(50, 0), 48, 0x99999999);
-    dl->DrawCircleFilled(Amy::fvec2(200, 120), 50, 0xffffffff, 40);
+    dl->DrawRectFilled(Amy::fvec2(50, 0), 48, Amy::Color(255, 255, 255, 160));
+    // Color only at runtime...yet (Palladium 0.6.0 dev is targeting this)
+    dl->DrawCircleFilled(Amy::fvec2(200, 120), 50, Amy::Color("#ffffff"), 40);
     dl->DrawSolid();
-    dl->DrawRectFilled(0, 50, 0x4400ff00);
+    dl->DrawRectFilled(0, 50, Amy::Color(0.f, 1.f, 0.f, 1.f));
 
     Iron::NewFrame();
     Iron::DrawOn(Top);

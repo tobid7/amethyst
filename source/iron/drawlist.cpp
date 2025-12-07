@@ -33,8 +33,8 @@ void Iron::Drawlist::Clear() {
   pLayer = 0;
 }
 
-Iron::Command::ref Iron::Drawlist::NewCommand() {
-  auto ret = std::make_unique<Command>();
+Iron::Command::Ref Iron::Drawlist::NewCommand() {
+  auto ret = Command::New();
   ret->Layer = pLayer;
   ret->Index = pData.size();
   ret->Tex = pTex;
@@ -48,7 +48,7 @@ void Iron::Drawlist::clipCmd(Command* ptr) {
   }
 }
 
-void Iron::Drawlist::Push(Command::ref cmd) { pData.push_back(std::move(cmd)); }
+void Iron::Drawlist::Push(Command::Ref cmd) { pData.push_back(std::move(cmd)); }
 
 void Iron::Drawlist::DrawSolid() { pTex = Iron::WhiteTex(); }
 

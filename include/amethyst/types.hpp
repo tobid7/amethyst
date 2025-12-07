@@ -4,8 +4,8 @@
 #include <amethyst/maths/vec.hpp>
 #include <chrono>
 #include <cinttypes>
-#include <functional>
 #include <format>
+#include <functional>
 #include <map>
 #include <memory>
 #include <numbers>
@@ -13,6 +13,20 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#define AMY_SHARED(x)                                        \
+  using Ref = std::shared_ptr<x>;                            \
+  template <typename... Args>                                \
+  static Ref New(Args&&... args) {                           \
+    return std::make_shared<x>(std::forward<Args>(args)...); \
+  }
+
+#define AMY_UNIQUE(x)                                        \
+  using Ref = std::unique_ptr<x>;                            \
+  template <typename... Args>                                \
+  static Ref New(Args&&... args) {                           \
+    return std::make_unique<x>(std::forward<Args>(args)...); \
+  }
 
 namespace Amy {
 using uc = unsigned char;
