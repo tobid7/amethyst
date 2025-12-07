@@ -70,7 +70,7 @@ ull GetTimeMilli() {
       .count();
 }
 
-void String2U16(us* res, const std::string& src, size_t max) {
+void String2U16(us* res, ksr src, size_t max) {
   /// GOT FORCED TO REPLACE std::wstring_convert by some
   /// manual work as it got removed in cxx20
   /// TODO ///

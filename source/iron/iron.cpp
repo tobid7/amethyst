@@ -51,7 +51,7 @@ int Iron::uLocProj = 0;
 C3D::Shader* Iron::m_shader = nullptr;
 mat4 Iron::m_mtx;
 int Iron::m_idx = 0, Iron::m_vtx = 0;
-Texture* Iron::m_solid = nullptr;
+Texture::Ref Iron::m_solid = nullptr;
 ui Iron::VertexCount = 0;
 ui Iron::IndexCount = 0;
 
@@ -63,7 +63,7 @@ void Iron::Init() {
 }
 
 void Iron::Exit() {
-  delete m_solid;
+  m_solid.reset();
   delete m_shader;
   m_vbuf.clear();
   m_ibuf.clear();
@@ -89,7 +89,7 @@ void Iron::Draw(const std::vector<Iron::Command::Ref>& data) {
   pFragConfig();
   size_t i = 0;
   while (i < data.size()) {
-    Texture* tex = data[i]->Tex;
+    Texture::Ref tex = data[i]->Tex;
     if (!tex) {
       i++;
       continue;
@@ -157,7 +157,7 @@ void Iron::pFragConfig() {
 void Iron::pInitSolidTex() {
   // i know there is a lot of memory wasted :(
   std::vector<uc> pixels(16 * 16 * 4, 0xff);
-  m_solid = new Texture();
+  m_solid = Texture::New();
   m_solid->Load(pixels, 16, 16);
   if (!m_solid->Ptr()) {
     throw Error("white tex failed to load!");
@@ -239,14 +239,15 @@ void Iron::CmdTriangle(Command* cmd, const fvec2& a, const fvec2& b,
 }
 
 void Iron::CmdConvexPolyFilled(Command* cmd, const std::vector<fvec2>& points,
-                               ui color, Texture* tex) {
+                               ui color, Texture::Ref tex) {
   if (points.size() < 3 || tex == nullptr) {
 #ifdef AMY_GOD_DEV
     return;
 #else
     throw std::runtime_error("[amy] iron: trying to render convex poly with " +
                              std::to_string(points.size()) +
-                             " points and Texture " + std::to_string((ui)tex));
+                             " points and Texture " +
+                             std::to_string((ui)tex.get()));
 #endif
   }
   // Support for Custom Textures (UV calculation)

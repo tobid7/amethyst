@@ -3,6 +3,7 @@
 #include <amethyst/id.hpp>
 #include <amethyst/texture.hpp>
 #include <amethyst/types.hpp>
+#include <memory>
 
 namespace Amy {
 class AssetMgr {
@@ -12,7 +13,7 @@ class AssetMgr {
 
   void AutoLoad(const ID& name, ksr path);
 
-  void Add(const ID& id, Asset* v) {
+  void Add(const ID& id, Asset::Ref v) {
     if (pAssets.count(id)) {
       throw std::runtime_error("[amy]: assets: " + id.GetName() +
                                " already exists!");
@@ -27,12 +28,12 @@ class AssetMgr {
   }
 
   template <typename T>
-  T* Get(const ID& id) {
+  std::shared_ptr<T> Get(const ID& id) {
     auto r = pAssets.find(id);
     if (r == pAssets.end()) {
       throw std::runtime_error("[amy] assets: unable to find " + id.GetName());
     }
-    if (auto v = dynamic_cast<T*>(r->second)) {
+    if (auto v = std::dynamic_pointer_cast<T>(r->second)) {
       return v;
     } else {
       throw std::runtime_error(id.GetName() + " is not of type " +
@@ -46,14 +47,14 @@ class AssetMgr {
     if (r == pAssets.end()) {
       throw std::runtime_error("[amy] assets: unable to find " + id.GetName());
     }
-    return dynamic_cast<T*>(r->second) != nullptr;
+    return std::dynamic_pointer_cast<T>(r->second) != nullptr;
   }
 
   template <typename T>
   size_t Count() const {
     size_t ret = 0;
     for (auto& it : pAssets) {
-      if (dynamic_cast<T*>(it.second)) {
+      if (std::dynamic_pointer_cast<T>(it.second)) {
         ret++;
       }
     }
@@ -61,6 +62,6 @@ class AssetMgr {
   }
 
  private:
-  std::map<ID, Asset*> pAssets;
+  std::map<ID, Asset::Ref> pAssets;
 };
 }  // namespace Amy

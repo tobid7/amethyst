@@ -42,6 +42,7 @@ class C3D {
     Shader(ksr path);
     Shader() {}
     ~Shader();
+    AMY_SHARED(Shader);
 
     void Load(ksr path);
     void Load(kvr<uc> data);

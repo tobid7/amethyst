@@ -16,6 +16,8 @@ bool IsSingleBitNum(ui v);
 ull GetTimeNano();
 ull GetTimeMicro();
 ull GetTimeMilli();
+void String2U16(us* res, ksr src, size_t max);
+std::string U16toU8(us* in, size_t max);
 /**
  * FNV Hash functiom (32 Bit)
  * https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function

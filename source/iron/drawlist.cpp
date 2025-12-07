@@ -243,30 +243,30 @@ void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2>& points,
 
 void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
                               ui color) {
-  /*if (!pCurrentFont) {
+  if (!pCurrentFont) {
     return;
   }
   std::vector<Command::Ref> cmds;
   pCurrentFont->CmdTextEx(cmds, pos, color, pFontScale, text);
   for (size_t i = 0; i < cmds.size(); i++) {
-    cmds[i]->Index = pDrawlist.size();
-    cmds[i]->Layer = Layer;
-    AddCommand(std::move(cmds[i]));
-  }*/
+    cmds[i]->Index = pData.size();
+    cmds[i]->Layer = pLayer;
+    Push(std::move(cmds[i]));
+  }
 }
 
 void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
                                 ui color, ui flags, const fvec2& box) {
-  /*if (!pCurrentFont) {
+  if (!pCurrentFont) {
     return;
   }
   std::vector<Command::Ref> cmds;
   pCurrentFont->CmdTextEx(cmds, p, color, pFontScale, text, flags, box);
   for (size_t i = 0; i < cmds.size(); i++) {
-    cmds[i]->Index = pDrawlist.size();
-    cmds[i]->Layer = Layer;
-    AddCommand(std::move(cmds[i]));
-  }*/
+    cmds[i]->Index = pData.size();
+    cmds[i]->Layer = pLayer;
+    Push(std::move(cmds[i]));
+  }
 }
 
 void Iron::Drawlist::DrawLine(const fvec2& a, const fvec2& b, ui color, int t) {

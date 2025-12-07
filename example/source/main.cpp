@@ -13,7 +13,11 @@ class Example : public Amy::App {
     Mgr->AutoLoad("icon", "romfs:/icon.png");
     Iron::Init();
     dl = new Iron::Drawlist();
+    Fnt = Iron::Font::New();
+    Fnt->LoadTTF("romfs:/ComicNeue.ttf");
+    dl->SetFont(Fnt);
   }
+
   ~Example() {
     delete Top;
     delete dl;
@@ -46,6 +50,7 @@ class Example : public Amy::App {
     dl->DrawCircleFilled(Amy::fvec2(200, 120), 50, Amy::Color("#ffffff"), 40);
     dl->DrawSolid();
     dl->DrawRectFilled(0, 50, Amy::Color(0.f, 1.f, 0.f, 1.f));
+    dl->DrawText(Amy::fvec2(5, 50), "Hello World!", Amy::Color(255, 0, 255));
 
     Iron::NewFrame();
     Iron::DrawOn(Top);
@@ -57,6 +62,7 @@ class Example : public Amy::App {
   C3D::Screen* Top;
   Amy::AssetMgr* Mgr;
   Iron::Drawlist* dl;
+  Iron::Font::Ref Fnt;
 };
 
 int main() {

@@ -8,6 +8,17 @@
 #include <amethyst/texture.hpp>
 #include <amethyst/types.hpp>
 
+using AmyTextFlags = Amy::ui;
+enum AmyTextFlags_ {
+  AmyTextFlags_None = 0,             ///< Do nothing
+  AmyTextFlags_AlignRight = 1 << 0,  ///< Align Right of position
+  AmyTextFlags_AlignMid = 1 << 1,    ///< Align in the middle of pos and box
+  AmyTextFlags_Shaddow = 1 << 2,     ///< Draws the text twice to create shaddow
+  AmyTextFlags_Wrap = 1 << 3,        ///< Wrap Text: May be runs better with TMS
+  AmyTextFlags_Short = 1 << 4,   ///< Short Text: May be runs better with TMS
+  AmyTextFlags_Scroll = 1 << 5,  ///< Not implemented [scoll text if to long]
+};
+
 namespace Amy {
 class Iron {
  public:
@@ -51,7 +62,7 @@ class Iron {
     bool ScissorOn = false;
     int Layer = 0;
     int Index = 0;
-    Texture* Tex = nullptr;
+    Texture::Ref Tex = nullptr;
   };
 
   class Font {
@@ -59,7 +70,7 @@ class Iron {
     struct Codepoint {
       ui Cp = 0;
       fvec4 Uv;
-      Texture* Tex;
+      Texture::Ref Tex;
       fvec2 Size;
       float Offset = 0;  // Unused??
       bool Valid = true;
@@ -80,12 +91,13 @@ class Iron {
 
     fvec2 GetTextBounds(ksr text, float scale);
     void CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
-                   float scale, ksr text, ui flags = 0, const fvec2& box = 0);
-    void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture* tex);
+                   float scale, ksr text, AmyTextFlags flags = 0,
+                   const fvec2& box = 0);
+    void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture::Ref tex);
 
     int PxHeight;
     int PxFactor = 24;
-    vec<Texture*> Textures;
+    vec<Texture::Ref> Textures;
     std::map<u32, Codepoint> pCodeMap;
   };
 
@@ -108,7 +120,8 @@ class Iron {
     void Clear();
 
     void DrawSolid();
-    void DrawTex(Texture* tex) { pTex = tex; }
+    void DrawTex(Texture::Ref tex) { pTex = tex; }
+    void SetFont(Font::Ref fnt) { pCurrentFont = fnt; }
 
     /** Draw Api */
     void DrawRect(const fvec2& pos, const fvec2& size, ui color,
@@ -160,10 +173,11 @@ class Iron {
     void clipCmd(Command* ptr);
     std::vector<Command::Ref> pData;
     std::vector<fvec2> pPath;
-    Texture* pTex = nullptr;
+    Texture::Ref pTex = nullptr;
     std::stack<fvec4> ClipRects;
-    Font* pCurrentFont;
+    Font::Ref pCurrentFont;
     int pLayer = 0;
+    float pFontScale = 0.7;
   };
   Iron() = default;
   ~Iron() = default;
@@ -173,7 +187,7 @@ class Iron {
   static void NewFrame();
   static void DrawOn(C3D::Screen* screen);
   static void Draw(const std::vector<Command::Ref>& data);
-  static Texture* WhiteTex() { return m_solid; }
+  static Texture::Ref WhiteTex() { return m_solid; }
 
   /** Static renderer utility funcs */
 
@@ -185,7 +199,7 @@ class Iron {
                           const fvec2& c, ui clr);
   static void CmdConvexPolyFilled(Command* cmd,
                                   const std::vector<fvec2>& points, ui clr,
-                                  Texture* tex);
+                                  Texture::Ref tex);
   static bool InBox(const fvec2& pos, const fvec2& size, const fvec4& area);
   static bool InBox(const fvec2& pos, const fvec4& area);
   static bool InBox(const fvec2& a, const fvec2& b, const fvec2& c,
@@ -206,7 +220,7 @@ class Iron {
   static C3D::Shader* m_shader;
   static mat4 m_mtx;
   static int m_idx, m_vtx;
-  static Texture* m_solid;
+  static Texture::Ref m_solid;
   static ui VertexCount;
   static ui IndexCount;
 };

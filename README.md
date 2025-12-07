@@ -26,4 +26,4 @@ Coming Soon...
 ## Credits
 
 - [tobid7](https://github.com/tobid7) Lead Developer, Stealing a lot of code of [Palladium](https://github.com/tobid7/palladium)
-- [nothings](https://github.com/nothings) [stb_image](https://github.com/nothings/stb)
+- [nothings](https://github.com/nothings) stb_image and stb_truetype from [here](https://github.com/nothings/stb)

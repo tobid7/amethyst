@@ -6,11 +6,11 @@ namespace Amy {
 void AssetMgr::AutoLoad(const ID& id, ksr path) {
   if (path.ends_with(".png") || path.ends_with(".jpg") ||
       path.ends_with(".bmp")) {
-    Texture* tex = new Texture();
+    auto tex = Texture::New();
     tex->Load(path);
     Add(id, tex);
   } else if (path.ends_with(".shbin")) {
-    C3D::Shader* shader = new C3D::Shader();
+    auto shader = C3D::Shader::New();
     shader->Load(path);
     Add(id, shader);
   } else {
