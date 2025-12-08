@@ -1,5 +1,6 @@
 #include <amethyst/assets.hpp>
 #include <amethyst/c3d.hpp>
+#include <amethyst/iron.hpp>
 #include <amethyst/texture.hpp>
 
 namespace Amy {
@@ -13,6 +14,10 @@ void AssetMgr::AutoLoad(const ID& id, ksr path) {
     auto shader = C3D::Shader::New();
     shader->Load(path);
     Add(id, shader);
+  } else if (path.ends_with(".ttf")) {
+    auto font = Iron::Font::New();
+    font->LoadTTF(path);
+    Add(id, font);
   } else {
     throw std::runtime_error("[amy]: assets: " + id.GetName() + " (" + path +
                              ") is unsupported for AssetMgr::AutoLoad!");

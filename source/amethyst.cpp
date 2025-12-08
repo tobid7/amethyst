@@ -27,6 +27,7 @@ void NpiD7CxxExceptionHandler() {
 #endif
 
 namespace Amy {
+
 void RegisterCxxExceptionHandler() {
 #ifdef AMY_3DS
   std::set_terminate(NpiD7CxxExceptionHandler);

@@ -50,6 +50,8 @@ class AssetMgr {
     return std::dynamic_pointer_cast<T>(r->second) != nullptr;
   }
 
+  size_t CountAll() const { return pAssets.size(); }
+
   template <typename T>
   size_t Count() const {
     size_t ret = 0;

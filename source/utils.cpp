@@ -144,6 +144,42 @@ std::string U16toU8(us* in, size_t max) {
   return result;
 }
 
+kstr FormatNanos(ull nanos) {
+  // Based on some code of my minecraft plugins
+  if (nanos < 1000) {
+    return std::format("{}ns", nanos);
+  } else if (nanos < 1000000) {
+    ull micros = nanos / 1000;
+    return std::format("{}us {}ns", micros, nanos % 1000);
+  } else if (nanos < 1000000000) {
+    ull millis = nanos / 1000000;
+    return std::format("{}ms {}us", millis, (nanos % 1000000) / 1000);
+  } else if (nanos < 60000000000ULL) {
+    ull seconds = nanos / 1000000000;
+    return std::format("{}s {}ms", seconds, (nanos % 1000000000) / 1000000);
+  } else {
+    ull minutes = nanos / 60000000000ULL;
+    ull seconds = (nanos % 60000000000ULL) / 1000000000;
+    return std::format("{}m {}s", minutes, seconds);
+  }
+  return "";
+}
+
+kstr FormatMillis(ull millis) {
+  // Original Code can be found in some of my mc plugins
+  if (millis < 1000) {
+    return std::format("{}ms", millis);
+  } else if (millis < 60000) {
+    ull seconds = millis / 1000;
+    return std::format("{}s {}ms", seconds, (millis % 1000));
+  } else {
+    ull minutes = millis / 60000;
+    ull seconds = (millis % 60000) / 1000;
+    return std::format("{}m {}s {}ms", minutes, seconds, (millis % 1000));
+  }
+  return "";
+}
+
 namespace Image {
 void ReverseBuf(vec<uc>& buf, int w, int h, int c) {
   vec<uc> cpy = buf;

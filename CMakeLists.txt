@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME} STATIC
     source/assets.cpp
     source/amethyst.cpp
     source/color.cpp
+    source/godtrace.cpp
     source/image.cpp
     source/renderer.cpp
     source/texture.cpp

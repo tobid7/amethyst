@@ -19,6 +19,23 @@ ull GetTimeMilli();
 void String2U16(us* res, ksr src, size_t max);
 std::string U16toU8(us* in, size_t max);
 /**
+ * Generate a Formatted String by an Nanoseconds Input
+ * @param nanos Nanoseconds Input
+ * @return Result String
+ */
+kstr FormatNanos(ull nanos);
+/**
+ * Generate a Formatted String by an Milliseconds Input
+ * @param millis Milliseconds Input
+ * @return Result String
+ */
+kstr FormatMillis(ull millis);
+/**
+ * Create a formatted String by an input bytes value
+ * @param bytes value in bytes
+ * @result Formatted String for example `2.5MB`
+ */
+/**
  * FNV Hash functiom (32 Bit)
  * https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
  * Able to run at compile time btw

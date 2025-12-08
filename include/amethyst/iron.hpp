@@ -65,7 +65,7 @@ class Iron {
     Texture::Ref Tex = nullptr;
   };
 
-  class Font {
+  class Font : public Asset {
    public:
     struct Codepoint {
       ui Cp = 0;
