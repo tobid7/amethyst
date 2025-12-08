@@ -30,6 +30,7 @@ class C3D {
     ivec2 Size() const { return ivec2(pWidth, pHeight); }
     void Clear() { C3D_RenderTargetClear(pTarget, C3D_CLEAR_ALL, 0, 0); }
     void Use() { C3D_FrameDrawOn(pTarget); }
+    C3D_RenderTarget* Ptr() { return pTarget; }
 
    private:
     C3D_RenderTarget* pTarget = nullptr;

@@ -9,6 +9,7 @@
 #include <amethyst/iron.hpp>
 #include <amethyst/renderer.hpp>
 #include <amethyst/texture.hpp>
+#include <amethyst/utils.hpp>
 
 namespace Amy {
 void RegisterCxxExceptionHandler();
@@ -17,4 +18,3 @@ void RegisterCxxExceptionHandler();
 using Iron = Amy::Iron;
 using C3D = Amy::C3D;
 using GTrace = Amy::GTrace;
-using Utils = Amy::Utils;

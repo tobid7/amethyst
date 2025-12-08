@@ -3,7 +3,7 @@
 namespace Amy {
 // The Solution of the biggest performance issue
 // A Simple Lookup table
-static const std::map<char, int> HEX_DEC = {
+static const std::unordered_map<char, int> HEX_DEC = {
     {'0', 0},  {'1', 1},  {'2', 2},  {'3', 3},  {'4', 4},  {'5', 5},
     {'6', 6},  {'7', 7},  {'8', 8},  {'9', 9},  {'a', 10}, {'b', 11},
     {'c', 12}, {'d', 13}, {'e', 14}, {'f', 15}, {'A', 10}, {'B', 11},
