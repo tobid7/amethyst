@@ -11,8 +11,11 @@ class Example : public Amy::App {
     Top = C3D::CreateScreen(GFX_TOP);
     Mgr = new Amy::AssetMgr();
     Iron::Init();
+    auto fnt = Iron::Font::New();
+    fnt->LoadBMF("romfs:/ComicNeue.png");
     Mgr->AutoLoad("icon", "romfs:/icon.png");
-    Mgr->AutoLoad("font", "romfs:/ComicNeue.ttf");
+    Mgr->Add("font", fnt);
+    // Mgr->AutoLoad("font", "romfs:/ComicNeue.ttf");
     dl = new Iron::Drawlist();
     dl->SetFont(Mgr->Get<Iron::Font>("font"));
   }

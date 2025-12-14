@@ -1,6 +1,7 @@
 #include <amethyst/iron.hpp>
 #include <amethyst/utils.hpp>
 #include <filesystem>
+#include <fstream>
 
 #if AMY_STB_TT == 1
 #define STB_TRUETYPE_IMPLEMENTATION
@@ -8,14 +9,52 @@
 #include <stb_truetype.h>
 
 namespace Amy {
-void Iron::Font::LoadBMF(ksr path) {}
+// Dont read this code please ... tnaks
+void Iron::Font::LoadBMF(ksr path) {
+  Image img(path);
+  if (img.Width() != img.Height() || img.Bpp() != 4) {
+    throw std::runtime_error(
+        "[Amy] Font: BMF is not in rgba or not 1x1 dimensioned!");
+  }
+  auto base = Amy::Texture::New();
+  base->Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp());
+  base->Unloadable(false);
+  PxHeight = img.Height() / 16;
+  for (int i = 0; i < img.Height(); i += PxHeight) {
+    for (int j = 0; j < img.Width(); j += PxHeight) {
+      int maxw = 0;
+      Amy::Texture::Ref tex = Amy::Texture::New();
+      for (int y = i; y < i + PxHeight; y++) {
+        for (int x = j; x < j + PxHeight; x++) {
+          if (img.GetBuffer()[((y * img.Width() + x) * 4) + 3] != 0) {
+            maxw = std::max(maxw, x - j);
+          }
+        }
+      }
+      maxw++;
+      tex->Load(base->Ptr(), base->Size(), base->Uv());
+      Codepoint cp;
+      cp.Cp = (i / PxHeight) * 16 + (j / PxHeight);
+      cp.Offset = 0.f;
+      cp.Size = fvec2(maxw, PxHeight);
+      cp.Tex = tex;
+      cp.Uv = fvec4(float(j) / float(img.Width()),
+                    1.f - float(i) / float(img.Height()),
+                    float(j + maxw) / float(img.Width()),
+                    1.f - float(i + PxHeight) / float(img.Height()));
+      cp.Valid = maxw != 0;
+      pCodeMap[(i / PxHeight) * 16 + (j / PxHeight)] = cp;
+      Textures.push_back(tex);
+    }
+  }
+}
 
 void Iron::Font::LoadTTF(ksr path, int size) {
   auto data = Amy::Utils::LoadFile2Mem(path);
   LoadTTF(data, size);
 }
 
-void Iron::Font::LoadTTF(const vec<uc> &data, int size) {
+void Iron::Font::LoadTTF(const vec<uc>& data, int size) {
   /**
    * Some additional Info:
    * Removed the stbtt get bitmapbox as we dont need to place
@@ -54,7 +93,7 @@ void Iron::Font::LoadTTF(const vec<uc> &data, int size) {
     if (stbtt_IsGlyphEmpty(&inf, gi)) continue;
 
     int w = 0, h = 0, xo = 0, yo = 0;
-    unsigned char *bitmap =
+    unsigned char* bitmap =
         stbtt_GetCodepointBitmap(&inf, scale, scale, ii, &w, &h, &xo, &yo);
     if (!bitmap || w <= 0 || h <= 0) {
       if (bitmap) free(bitmap);
@@ -130,13 +169,13 @@ void Iron::Font::LoadTTF(const vec<uc> &data, int size) {
   }
 }
 
-void Iron::Font::pMakeAtlas(bool final, vec<uc> &font_tex, int texszs,
+void Iron::Font::pMakeAtlas(bool final, vec<uc>& font_tex, int texszs,
                             Texture::Ref tex) {
   tex->Load(font_tex, texszs, texszs);
   Textures.push_back(tex);
 }
 
-Iron::Font::Codepoint &Iron::Font::GetCodepoint(ui cp) {
+Iron::Font::Codepoint& Iron::Font::GetCodepoint(ui cp) {
   // Check if codepoijt exist or return a static invalid one
   auto res = pCodeMap.find(cp);
   if (res == pCodeMap.end()) {
@@ -157,7 +196,7 @@ fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
   float cfs = (PxFactor * scale) / (float)PxHeight;
   float lh = (float)PxHeight * cfs;
   size_t index = 0;
-  for (auto &it : wtext) {
+  for (auto& it : wtext) {
     if (it == L'\0') {
       break;
     }
@@ -192,9 +231,9 @@ fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
   return res;
 }
 
-void Iron::Font::CmdTextEx(vec<Command::Ref> &cmds, const fvec2 &pos, ui color,
-                           float scale, const std::string &text,
-                           AmyTextFlags flags, const fvec2 &box) {
+void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
+                           float scale, const std::string& text,
+                           AmyTextFlags flags, const fvec2& box) {
   fvec2 off;
   float cfs = (PxFactor * scale) / (float)PxHeight;
   float lh = (float)PxHeight * cfs;
@@ -218,7 +257,7 @@ void Iron::Font::CmdTextEx(vec<Command::Ref> &cmds, const fvec2 &pos, ui color,
     lines.push_back(tmp);
   }
 
-  for (auto &it : lines) {
+  for (auto& it : lines) {
     /*if (flags & AmyTextFlags_Short) {
       fvec2 tmp_dim;
       it = ShortText(it, box.x() - pos.x(), tmp_dim);
@@ -228,7 +267,7 @@ void Iron::Font::CmdTextEx(vec<Command::Ref> &cmds, const fvec2 &pos, ui color,
     auto cmd = Command::New();
     auto Tex = GetCodepoint(wline[0]).Tex;
     cmd->Tex = Tex;
-    for (auto &jt : wline) {
+    for (auto& jt : wline) {
       auto cp = GetCodepoint(jt);
       if ((!cp.Valid && jt != L' ' && jt != L'\n' && jt != L'\t') &&
           jt != L'\r') {

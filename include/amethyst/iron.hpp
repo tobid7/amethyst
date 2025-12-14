@@ -105,6 +105,7 @@ class Iron {
    public:
     Drawlist() { DrawSolid(); }
     ~Drawlist() { pData.clear(); }
+    AMY_SHARED(Drawlist)
 
     // required due to memory management
     Drawlist(const Drawlist&) = delete;
@@ -122,7 +123,9 @@ class Iron {
     void DrawSolid();
     void DrawTex(Texture::Ref tex) { pTex = tex; }
     void SetFont(Font::Ref fnt) { pCurrentFont = fnt; }
-
+    void SetFontScale(float v) { pFontScale = v; }
+    float GetFontScale() { return pFontScale; }
+    void DefaultFontScale() { pFontScale = 0.7; }
     /** Draw Api */
     void DrawRect(const fvec2& pos, const fvec2& size, ui color,
                   int thickness = 1);

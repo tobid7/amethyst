@@ -29,6 +29,8 @@ class Texture : public Asset {
     // Dont set as loaded as only the root tex can be loaded
   }
   void Unload();
+  void Unloadable(bool v) { pLoaded = v; }
+  bool Unloadable() { return pLoaded; }
 
   int W() const { return pSize.x; }
   int& W() { return pSize.x; }
