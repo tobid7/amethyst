@@ -7,11 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 option(AMY_GOD_DEV "Turn this on if you think you are god" OFF)
 # THis option should be disabled if you use STB_IMAGE in you main project
-set(AMY_BUILD_STB_IMAGE 0)
+set(AMY_BUILD_STB_IMAGE CACHE BOOL 0)
 set(AMY_BUILD_STB_TRUETYPE 1)
 set(AMY_WITH_MPG123 "Include MP3 Support" CACHE BOOL 1)
 
-#add_subdirectory(vendor/libpicasso)
+add_subdirectory(vendor/libpicasso)
 
 add_library(${PROJECT_NAME} STATIC
     source/app.cpp
@@ -36,7 +36,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/source/internal
 )
-#target_link_libraries(${PROJECT_NAME} PUBLIC pica::pica)
+target_link_libraries(${PROJECT_NAME} PUBLIC pica::pica)
 target_link_libraries(${PROJECT_NAME} PUBLIC m z ctru citro3d mpg123)
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     AMY_3DS

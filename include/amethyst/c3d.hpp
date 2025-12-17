@@ -60,6 +60,7 @@ class C3D {
     shaderProgram_s pProgram;
     DVLB_s* pCode = nullptr;
     int pReg = 0;
+    std::vector<uc> pRawData;
   };
 
   class Frag {

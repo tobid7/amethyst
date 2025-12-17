@@ -2,7 +2,7 @@
 
 #include <amethyst/c3d.hpp>
 #include <amethyst/utils.hpp>
-// #include <pica.hpp>
+#include <pica.hpp>
 
 namespace Amy {
 
@@ -58,22 +58,23 @@ void C3D::Shader::Load(const std::string& path) {
 }
 
 void C3D::Shader::Load(const std::vector<uc>& data) {
-  pCode = DVLB_ParseFile((u32*)&data[0], data.size());
+  if (!data.size()) {
+    throw std::runtime_error("[amy] unable to load shader from data!");
+  }
+  pRawData = data;
+  pCode = DVLB_ParseFile((u32*)&pRawData[0], pRawData.size());
   shaderProgramInit(&pProgram);
   shaderProgramSetVsh(&pProgram, &pCode->DVLE[0]);
-  C3D_BindProgram(&pProgram);
   AttrInfo_Init(&pInfo);
 }
 
 void C3D::Shader::Compile(const std::string& code) {
-  throw std::runtime_error("[amy]: unable to compile shader (not allowed)");
-  /*auto ret = Pica::AssembleCode(code.c_str());
-  Load(ret);*/
+  auto ret = Pica::AssembleCode(code.c_str());
+  Load(ret);
 }
 
 void C3D::Shader::Use() {
   // C3D_BindProgram(&pProgram);
-  // for some reason i need both ???
   // code works perfectly without C3D_BindProgram
   // but nor withour shaderProgramUse ...
   shaderProgramUse(&pProgram);
