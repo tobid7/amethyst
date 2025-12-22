@@ -12,12 +12,14 @@ namespace Amy {
 // Dont read this code please ... tnaks
 void Iron::Font::LoadBMF(ksr path) {
   Image img(path);
-  if (img.Width() != img.Height() || img.Bpp() != 4) {
+  img.Convert(Image::A8);
+  if (img.Width() != img.Height() || img.Bpp() != 1 || img.Width() <= 0 ||
+      img.Height() <= 0) {
     throw std::runtime_error(
         "[Amy] Font: BMF is not in rgba or not 1x1 dimensioned!");
   }
   auto base = Amy::Texture::New();
-  base->Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp());
+  base->Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp(), img.Fmt());
   base->Unloadable(false);
   PxHeight = img.Height() / 16;
   for (int i = 0; i < img.Height(); i += PxHeight) {
@@ -26,25 +28,26 @@ void Iron::Font::LoadBMF(ksr path) {
       Amy::Texture::Ref tex = Amy::Texture::New();
       for (int y = i; y < i + PxHeight; y++) {
         for (int x = j; x < j + PxHeight; x++) {
-          if (img.GetBuffer()[((y * img.Width() + x) * 4) + 3] != 0) {
+          if (img.GetBuffer()[y * img.Width() + x] != 0) {
             maxw = std::max(maxw, x - j);
           }
         }
       }
-      maxw++;
-      tex->Load(base->Ptr(), base->Size(), base->Uv());
       Codepoint cp;
+      cp.Valid = maxw != 0;
       cp.Cp = (i / PxHeight) * 16 + (j / PxHeight);
       cp.Offset = 0.f;
-      cp.Size = fvec2(maxw, PxHeight);
-      cp.Tex = tex;
-      cp.Uv = fvec4(float(j) / float(img.Width()),
-                    1.f - float(i) / float(img.Height()),
-                    float(j + maxw) / float(img.Width()),
-                    1.f - float(i + PxHeight) / float(img.Height()));
-      cp.Valid = maxw != 0;
+      if (cp.Valid) {
+        tex->Load(base->Ptr(), base->Size(), base->Uv());
+        cp.Size = fvec2(maxw + 1, PxHeight);
+        cp.Tex = tex;
+        cp.Uv = fvec4(float(j) / float(img.Width()),
+                      1.f - float(i) / float(img.Height()),
+                      float(j + maxw + 1) / float(img.Width()),
+                      1.f - float(i + PxHeight) / float(img.Height()));
+        Textures.push_back(tex);
+      }
       pCodeMap[(i / PxHeight) * 16 + (j / PxHeight)] = cp;
-      Textures.push_back(tex);
     }
   }
 }
@@ -81,7 +84,7 @@ void Iron::Font::LoadTTF(const vec<uc>& data, int size) {
   // Cache to not render same codepoint tex twice
   std::map<u32, int> buf_cache;
 
-  std::vector<u8> font_tex(texszs * texszs * 4, 0);
+  std::vector<u8> font_tex(texszs * texszs, 0);
   auto tex = Texture::New();
   fvec2 off;
 
@@ -147,12 +150,8 @@ void Iron::Font::LoadTTF(const vec<uc>& data, int size) {
     for (int y = 0; y < h; ++y) {
       for (int x = 0; x < w; ++x) {
         int map_pos = ((static_cast<int>(off.y) + y) * texszs +
-                       (static_cast<int>(off.x) + x)) *
-                      4;
-        font_tex[map_pos + 0] = 255;
-        font_tex[map_pos + 1] = 255;
-        font_tex[map_pos + 2] = 255;
-        font_tex[map_pos + 3] = bitmap[x + y * w];
+                       (static_cast<int>(off.x) + x));
+        font_tex[map_pos] = bitmap[x + y * w];
       }
     }
 
@@ -171,7 +170,7 @@ void Iron::Font::LoadTTF(const vec<uc>& data, int size) {
 
 void Iron::Font::pMakeAtlas(bool final, vec<uc>& font_tex, int texszs,
                             Texture::Ref tex) {
-  tex->Load(font_tex, texszs, texszs);
+  tex->Load(font_tex, texszs, texszs, 1, Amy::Image::A8);
   Textures.push_back(tex);
 }
 

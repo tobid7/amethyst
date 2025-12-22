@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 option(AMY_GOD_DEV "Turn this on if you think you are god" OFF)
 # THis option should be disabled if you use STB_IMAGE in you main project
-set(AMY_BUILD_STB_IMAGE CACHE BOOL 0)
+set(AMY_BUILD_STB_IMAGE 0)
 set(AMY_BUILD_STB_TRUETYPE 1)
 set(AMY_WITH_MPG123 "Include MP3 Support" CACHE BOOL 1)
 

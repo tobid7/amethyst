@@ -70,7 +70,7 @@ class Iron {
     struct Codepoint {
       ui Cp = 0;
       fvec4 Uv;
-      Texture::Ref Tex;
+      Texture::Ref Tex = nullptr;
       fvec2 Size;
       float Offset = 0;  // Unused??
       bool Valid = true;
@@ -213,7 +213,7 @@ class Iron {
 
  private:
   static void pSetupShader();
-  static void pFragConfig();
+  static void pFragConfig(GPU_TEXCOLOR clr);
   static void pInitSolidTex();
   static bool pCheckSize(size_t idx, size_t vtx);
 

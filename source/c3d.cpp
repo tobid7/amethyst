@@ -69,15 +69,14 @@ void C3D::Shader::Load(const std::vector<uc>& data) {
 }
 
 void C3D::Shader::Compile(const std::string& code) {
-  auto ret = Pica::AssembleCode(code.c_str());
-  Load(ret);
+  Load(Pica::AssembleCode(code.c_str()));
 }
 
 void C3D::Shader::Use() {
-  // C3D_BindProgram(&pProgram);
   // code works perfectly without C3D_BindProgram
-  // but nor withour shaderProgramUse ...
+  // but nor without shaderProgramUse ...
   shaderProgramUse(&pProgram);
+  C3D_BindProgram(&pProgram);
   C3D_SetAttrInfo(&pInfo);
 }
 

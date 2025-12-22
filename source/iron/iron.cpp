@@ -80,14 +80,14 @@ void Iron::DrawOn(C3D::Screen* screen) {
 void Iron::Draw(const std::vector<Iron::Command::Ref>& data) {
   // disable depthtest cause we have no z buffer
   C3D::DepthTest(false);
-  pFragConfig();
   size_t i = 0;
   while (i < data.size()) {
     Texture::Ref tex = data[i]->Tex;
-    if (!tex) {
+    if (!tex || !tex->Ptr()) {
       i++;
       continue;
     }
+    pFragConfig(tex->Ptr()->fmt);
     auto scissorOn = data[i]->ScissorOn;
     auto scissor = data[i]->ScissorRect;
     auto start = m_idx;
@@ -133,17 +133,30 @@ void Iron::pSetupShader() {
   uLocProj = m_shader->loc("projection");
 }
 
-void Iron::pFragConfig() {
+void Iron::pFragConfig(GPU_TEXCOLOR clr) {
   C3D::Frag::Edit();
-  C3D::Frag::Src(C3D_Both, GPU_TEXTURE0);
-  C3D::Frag::Func(C3D_Both, GPU_MODULATE);
+  switch (clr) {
+    case GPU_A4:
+    case GPU_A8:
+    case GPU_L4:
+    case GPU_L8:
+      C3D::Frag::Src(C3D_Alpha, GPU_TEXTURE0);
+      C3D::Frag::Func(C3D_RGB, GPU_REPLACE);
+      C3D::Frag::Func(C3D_Alpha, GPU_MODULATE);
+      break;
+
+    default:
+      C3D::Frag::Src(C3D_Both, GPU_TEXTURE0);
+      C3D::Frag::Func(C3D_Both, GPU_MODULATE);
+      break;
+  }
 }
 
 void Iron::pInitSolidTex() {
   // i know there is a lot of memory wasted :(
-  std::vector<uc> pixels(16 * 16 * 4, 0xff);
+  std::vector<uc> pixels(16 * 16, 0xff);
   m_solid = Texture::New();
-  m_solid->Load(pixels, 16, 16);
+  m_solid->Load(pixels, 16, 16, 1, Amy::Image::A8);
   if (!m_solid->Ptr()) {
     throw Error("white tex failed to load!");
   }

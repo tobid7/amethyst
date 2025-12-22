@@ -11,18 +11,18 @@ class Example : public Amy::App {
     Top = C3D::CreateScreen(GFX_TOP);
     Mgr = new Amy::AssetMgr();
     Iron::Init();
+    Mgr->AutoLoad("icon", "romfs:/icon.png");
     auto fnt = Iron::Font::New();
     fnt->LoadBMF("romfs:/ComicNeue.png");
-    Mgr->AutoLoad("icon", "romfs:/icon.png");
     Mgr->Add("font", fnt);
     // Mgr->AutoLoad("font", "romfs:/ComicNeue.ttf");
-    dl = new Iron::Drawlist();
+    dl = Iron::Drawlist::New();
     dl->SetFont(Mgr->Get<Iron::Font>("font"));
   }
 
   ~Example() {
+    dl.reset();
     delete Top;
-    delete dl;
     delete Mgr;
     Iron::Exit();
     C3D::Deinit();
@@ -59,7 +59,7 @@ class Example : public Amy::App {
 
     Iron::NewFrame();
     Iron::DrawOn(Top);
-    Iron::Draw(*dl);
+    Iron::Draw(dl->Data());
     dl->Clear();
     C3D::EndFrame();
     Amy::GTrace::End("Main");
@@ -67,7 +67,7 @@ class Example : public Amy::App {
 
   C3D::Screen* Top;
   Amy::AssetMgr* Mgr;
-  Iron::Drawlist* dl;
+  Iron::Drawlist::Ref dl = nullptr;
 };
 
 int main() {

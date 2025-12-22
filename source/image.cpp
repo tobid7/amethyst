@@ -92,6 +92,17 @@ int Image::GetBppOfFmt(const Image::Format& fmt) {
 void Image::Convert(Image& img, const Format& dst) {
   if (img.pFmt == dst) {
     return;
+  } else if (img.pFmt == RGBA && dst == A8) {
+    std::vector<uc> cpy = img.pBuffer;
+    img.pBuffer.resize(img.pW * img.pH);
+    for (int y = 0; y < img.pH; y++) {
+      for (int x = 0; x < img.pW; x++) {
+        int src = (y * img.pW + x) * 4;
+        int dst = (y * img.pW + x);
+        img.pBuffer[dst] = cpy[src + 3];
+      }
+    }
+    img.pFmt = A8;
   } else if (img.pFmt == RGB && dst == BGR) {
     Utils::Image::ReverseBuf(img.pBuffer, img.pW, img.pH, 3);
     img.pFmt = BGR;
