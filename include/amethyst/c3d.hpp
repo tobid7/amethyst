@@ -28,7 +28,9 @@ class C3D {
     int Width() const { return pWidth; }
     int Height() const { return pHeight; }
     ivec2 Size() const { return ivec2(pWidth, pHeight); }
-    void Clear() { C3D_RenderTargetClear(pTarget, C3D_CLEAR_ALL, 0, 0); }
+    void Clear(ui clr = 0x0, ui depth_clr = 0x0) {
+      C3D_RenderTargetClear(pTarget, C3D_CLEAR_ALL, clr, depth_clr);
+    }
     void Use() { C3D_FrameDrawOn(pTarget); }
     C3D_RenderTarget* Ptr() { return pTarget; }
 
