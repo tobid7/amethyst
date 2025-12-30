@@ -209,6 +209,17 @@ void Iron::Drawlist::DrawCircleFilled(const fvec2& center, float rad, ui color,
   PathFill(color);
 }
 
+void Iron::Drawlist::DrawCutTex(fvec2 pos, fvec2 size, fvec4 cut_rect,
+                                ui color) {
+  auto r = Iron::PrimRect(pos, size);
+  auto cmd = NewCommand();
+  auto uv = cut_rect / fvec4(pTex->Size(), pTex->Size());
+  uv.y = 1.f - uv.y;
+  uv.w = 1.f - uv.w;
+  Iron::CmdQuad(cmd.get(), r, uv, color);
+  Push(std::move(cmd));
+}
+
 void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2>& points, ui clr,
                                   ui flags, int thickness) {
   if (points.size() < 2) {

@@ -122,6 +122,14 @@ class Iron {
 
     void DrawSolid();
     void DrawTex(Texture::Ref tex) { pTex = tex; }
+    void DrawCutTex(fvec2 pos, fvec2 size, fvec4 cut_rect,
+                    ui color = 0xffffffff);
+    void DrawCutTex(fvec2 pos, fvec2 size, fvec4 cut_rect, Texture::Ref tex,
+                    ui color = 0xffffffff) {
+      DrawTex(tex);
+      DrawCutTex(pos, size, cut_rect, color);
+      DrawSolid();
+    }
     void SetFont(Font::Ref fnt) { pCurrentFont = fnt; }
     void SetFontScale(float v) { pFontScale = v; }
     float GetFontScale() { return pFontScale; }
