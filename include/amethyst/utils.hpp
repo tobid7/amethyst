@@ -8,6 +8,13 @@ class Error : public std::runtime_error {
   Error(ksr str) : std::runtime_error("[amy] " + str) {}
 };
 namespace Utils {
+constexpr int HexChar2Int(char c) {
+  /** Imagine man hat ne lookup table dafür verwendet :/ */
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+  if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+  return -1;  // Error
+}
 vec<uc> LoadFile2Mem(ksr path);
 str FormatBytes(ull bytes);
 ui HashMemory(kvr<uc> data);

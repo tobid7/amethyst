@@ -1,6 +1,7 @@
 #pragma once
 
 #include <amethyst/types.hpp>
+#include <amethyst/utils.hpp>
 
 // We all know where the code is from ... RenderD7 -> Palladium/Amy
 
@@ -47,14 +48,27 @@ class Color {
    * Constructor for Hex Input
    * @param hex Hex String in `#ffffff` or `#ffffffff` format
    */
-  Color(const std::string& hex) { Hex(hex); }
+  constexpr Color(const std::string& hex) { Hex(hex); }
 
   /**
    * Create Color Object by Hex String
    * @param hex Hex String in `#ffffff` or `#ffffffff` format
    * @return Color class itself
    */
-  Color& Hex(const std::string& hex);
+  constexpr Color& Hex(const std::string& hex) {
+    if (!(hex.length() == 7 || hex.length() == 9)) {
+      throw "[PD] Color: hex string is not rgb or rgba!";
+    }
+    r = Utils::HexChar2Int(hex[1]) * 16 + Utils::HexChar2Int(hex[2]);
+    g = Utils::HexChar2Int(hex[3]) * 16 + Utils::HexChar2Int(hex[4]);
+    b = Utils::HexChar2Int(hex[5]) * 16 + Utils::HexChar2Int(hex[6]);
+    if (hex.length() == 9) {
+      a = Utils::HexChar2Int(hex[7]) * 16 + Utils::HexChar2Int(hex[8]);
+    } else {
+      a = 255;
+    }
+    return *this;
+  }
   /**
    * Convert this Color Object to Hex string
    * @param rgba [default false] sets if 8 or 6 digit color should be returned
