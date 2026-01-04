@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <fstream>
 
-#if AMY_STB_TT == 1
+//#ifdef AMY_STB_TT
 #define STB_TRUETYPE_IMPLEMENTATION
-#endif
+//#endif
 #include <stb_truetype.h>
 
 namespace Amy {

@@ -7,9 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 option(AMY_GOD_DEV "Turn this on if you think you are god" OFF)
 # THis option should be disabled if you use STB_IMAGE in you main project
-set(AMY_BUILD_STB_IMAGE 0)
-set(AMY_BUILD_STB_TRUETYPE 1)
-set(AMY_WITH_MPG123 "Include MP3 Support" CACHE BOOL 1)
+option(AMY_BUILD_STB_IMAGE ON)
+option(AMY_BUILD_STB_TRUETYPE ON)
 
 add_subdirectory(vendor/libpicasso)
 
@@ -38,12 +37,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC pica::pica)
 target_link_libraries(${PROJECT_NAME} PUBLIC m z ctru citro3d mpg123)
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-    AMY_3DS
-    AMY_STB_IMAGE=${AMY_BUILD_STB_IMAGE}
-    AMY_STB_TT=${AMY_BUILD_STB_TRUETYPE}
-    AMY_WITH_MPG123=${AMY_WITH_MPG123}
-)
+if(${AMY_BUILD_STB_IMAGE})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_STB_IMAGE)
+endif()
+if(${AMY_BUILD_STB_TRUETYPE})
+    target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_STB_TT)
+endif()
+
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-psabi)
 
 add_subdirectory(example)

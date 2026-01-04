@@ -4,7 +4,7 @@
 
 // Only include stb Code if we need it
 // Otherwise we just build the header
-#if AMY_STB_IMAGE == 1
+#ifdef AMY_STB_IMAGE
 #define STB_IMAGE_IMPLEMENTATION
 #endif
 #include <stb_image.h>
