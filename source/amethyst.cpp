@@ -34,54 +34,45 @@ static Amy::Memory::MemMetrics metrics;
 
 #ifdef TRACK_NEW_DELETE
 
-void *operator new(size_t size) {
-  void *ptr = malloc(size + sizeof(size_t));
-  if (!ptr) return ptr;
-  *((size_t *)ptr) = size;
+constexpr uint32_t MemDBGMagic = 0x774733d7;
+
+struct MemDBGHeader {
+  MemDBGHeader(size_t s) {
+    Magic = MemDBGMagic;
+    Size = s;
+  }
+  uint32_t Magic = MemDBGMagic;
+  size_t Size = 0;
+};
+
+void *MemDBGAllocate(size_t size) {
+  uintptr_t ptr = (uintptr_t)malloc(size + sizeof(MemDBGHeader));
+  if (!ptr) return reinterpret_cast<void *>(ptr);
+  *((MemDBGHeader *)ptr) = MemDBGHeader(size);
   metrics.Allocated.fetch_add(size, std::memory_order_relaxed);
   metrics.Current.fetch_add(size, std::memory_order_relaxed);
   metrics.Allocations.fetch_add(1, std::memory_order_relaxed);
-  return ptr + sizeof(size_t);
+  return reinterpret_cast<void *>(ptr + sizeof(MemDBGHeader));
 }
 
-void operator delete(void *ptr, size_t size) noexcept {
-  void *raw = ptr - sizeof(size_t);
-  size_t szs = *((size_t *)raw);
-  metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
-  metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
-  metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
-  free(raw);
+void MemDBGFree(void *ptr) {
+  uintptr_t raw = (uintptr_t)ptr - sizeof(MemDBGHeader);
+  if (((MemDBGHeader *)raw)->Magic == MemDBGMagic) {
+    size_t szs = ((MemDBGHeader *)raw)->Size;
+    metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
+    metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
+    metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
+    free(reinterpret_cast<void *>(raw));
+  } else {
+    free(ptr);
+  }
 }
 
-void operator delete(void *ptr) noexcept {
-  void *raw = ptr - sizeof(size_t);
-  size_t szs = *((size_t *)raw);
-  metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
-  metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
-  metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
-  free(raw);
-}
-
-void *operator new[](size_t size) {
-  void *ptr = malloc(size + sizeof(size_t));
-  if (!ptr) return ptr;
-
-  *((size_t *)ptr) = size;
-  metrics.Allocated.fetch_add(size, std::memory_order_relaxed);
-  metrics.Current.fetch_add(size, std::memory_order_relaxed);
-  metrics.Allocations.fetch_add(1, std::memory_order_relaxed);
-
-  return ptr + sizeof(size_t);
-}
-
-void operator delete[](void *ptr) noexcept {
-  void *raw = ptr - sizeof(size_t);
-  size_t szs = *((size_t *)raw);
-  metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
-  metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
-  metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
-  free(raw);
-}
+void *operator new(size_t size) { return MemDBGAllocate(size); }
+void operator delete(void *ptr, size_t) noexcept { MemDBGFree(ptr); }
+void operator delete(void *ptr) noexcept { MemDBGFree(ptr); }
+void *operator new[](size_t size) { return MemDBGAllocate(size); }
+void operator delete[](void *ptr) noexcept { MemDBGFree(ptr); }
 #endif
 
 namespace Amy {
@@ -93,27 +84,14 @@ void RegisterCxxExceptionHandler() {
 }
 void *Malloc(size_t size) {
 #ifdef TRACK_NEW_DELETE
-  void *ptr = malloc(size + sizeof(size_t));
-  if (!ptr) return nullptr;
-
-  *((size_t *)ptr) = size;
-  metrics.Allocated.fetch_add(size, std::memory_order_relaxed);
-  metrics.Current.fetch_add(size, std::memory_order_relaxed);
-  metrics.Allocations.fetch_add(1, std::memory_order_relaxed);
-
-  return ptr + sizeof(size_t);
+  return MemDBGAllocate(size);
 #else
   return malloc(size);
 #endif
 }
 void Free(void *ptr) {
 #ifdef TRACK_NEW_DELETE
-  void *raw = ptr - sizeof(size_t);
-  size_t szs = *((size_t *)raw);
-  metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
-  metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
-  metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
-  free(raw);
+  MemDBGFree(ptr);
 #else
   free(ptr);
 #endif
