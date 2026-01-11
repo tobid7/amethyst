@@ -46,33 +46,85 @@ struct MemDBGHeader {
 };
 
 void *MemDBGAllocate(size_t size) {
-  uintptr_t ptr = (uintptr_t)malloc(size + sizeof(MemDBGHeader));
+  void *ptr = malloc(size + sizeof(MemDBGHeader));
   if (!ptr) return reinterpret_cast<void *>(ptr);
-  *((MemDBGHeader *)ptr) = MemDBGHeader(size);
-  metrics.Allocated.fetch_add(size, std::memory_order_relaxed);
-  metrics.Current.fetch_add(size, std::memory_order_relaxed);
+  MemDBGHeader *hdr = reinterpret_cast<MemDBGHeader *>(ptr);
+  hdr->Magic = MemDBGMagic;
+  hdr->Size = size;
+  metrics.Allocated.fetch_add(hdr->Size, std::memory_order_relaxed);
+  metrics.Current.fetch_add(hdr->Size, std::memory_order_relaxed);
   metrics.Allocations.fetch_add(1, std::memory_order_relaxed);
-  return reinterpret_cast<void *>(ptr + sizeof(MemDBGHeader));
+  return reinterpret_cast<void *>(hdr + 1);
 }
 
 void MemDBGFree(void *ptr) {
-  uintptr_t raw = (uintptr_t)ptr - sizeof(MemDBGHeader);
-  if (((MemDBGHeader *)raw)->Magic == MemDBGMagic) {
-    size_t szs = ((MemDBGHeader *)raw)->Size;
+  if (!ptr) return;
+  MemDBGHeader *hdr = reinterpret_cast<MemDBGHeader *>(ptr) - 1;
+  if (hdr->Magic == MemDBGMagic) {
+    hdr->Magic = 0;
+    size_t szs = hdr->Size;
     metrics.Deleted.fetch_add(szs, std::memory_order_relaxed);
     metrics.Current.fetch_sub(szs, std::memory_order_relaxed);
     metrics.Allocations.fetch_sub(1, std::memory_order_relaxed);
-    free(reinterpret_cast<void *>(raw));
+    free(reinterpret_cast<void *>(hdr));
   } else {
-    free(ptr);
+    std::abort();
   }
 }
 
 void *operator new(size_t size) { return MemDBGAllocate(size); }
-void operator delete(void *ptr, size_t) noexcept { MemDBGFree(ptr); }
-void operator delete(void *ptr) noexcept { MemDBGFree(ptr); }
 void *operator new[](size_t size) { return MemDBGAllocate(size); }
+void operator delete(void *ptr) noexcept { MemDBGFree(ptr); }
+void operator delete(void *ptr, size_t) noexcept { MemDBGFree(ptr); }
 void operator delete[](void *ptr) noexcept { MemDBGFree(ptr); }
+void operator delete[](void *ptr, size_t) noexcept { MemDBGFree(ptr); }
+void *operator new(size_t size, const std::nothrow_t &) noexcept {
+  return MemDBGAllocate(size);
+}
+void *operator new[](size_t size, const std::nothrow_t &) noexcept {
+  return MemDBGAllocate(size);
+}
+void operator delete(void *ptr, const std::nothrow_t &) noexcept {
+  MemDBGFree(ptr);
+}
+void operator delete[](void *ptr, const std::nothrow_t &) noexcept {
+  MemDBGFree(ptr);
+}
+void *operator new(size_t size, std::align_val_t) {
+  return MemDBGAllocate(size);
+}
+void *operator new[](size_t size, std::align_val_t) {
+  return MemDBGAllocate(size);
+}
+
+void operator delete(void *ptr, std::align_val_t) noexcept { MemDBGFree(ptr); }
+void operator delete[](void *ptr, std::align_val_t) noexcept {
+  MemDBGFree(ptr);
+}
+void *operator new(size_t size, std::align_val_t,
+                   const std::nothrow_t &) noexcept {
+  return MemDBGAllocate(size);
+}
+void *operator new[](size_t size, std::align_val_t,
+                     const std::nothrow_t &) noexcept {
+  return MemDBGAllocate(size);
+}
+void operator delete(void *ptr, size_t, std::align_val_t) noexcept {
+  MemDBGFree(ptr);
+}
+
+void operator delete[](void *ptr, size_t, std::align_val_t) noexcept {
+  MemDBGFree(ptr);
+}
+void operator delete(void *ptr, size_t, std::align_val_t,
+                     const std::nothrow_t &) noexcept {
+  MemDBGFree(ptr);
+}
+
+void operator delete[](void *ptr, size_t, std::align_val_t,
+                       const std::nothrow_t &) noexcept {
+  MemDBGFree(ptr);
+}
 #endif
 
 namespace Amy {
