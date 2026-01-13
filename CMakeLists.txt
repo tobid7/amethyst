@@ -9,6 +9,7 @@ option(AMY_GOD_DEV "Turn this on if you think you are god" OFF)
 # THis option should be disabled if you use STB_IMAGE in you main project
 option(AMY_BUILD_STB_IMAGE ON)
 option(AMY_BUILD_STB_TRUETYPE ON)
+option(AMY_BUILD_EXAMPLE OFF)
 
 add_subdirectory(vendor/libpicasso)
 
@@ -46,7 +47,9 @@ endif()
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-psabi)
 
-add_subdirectory(example)
+if(${AMY_BUILD_EXAMPLE})
+    add_subdirectory(example)
+endif()
 
 install(TARGETS ${PROJECT_NAME})
 install(DIRECTORY include DESTINATION .)
