@@ -41,11 +41,12 @@ class Iron {
     fvec2 uv;
     ui color = 0;
   };
+
   class Command {
    public:
     Command() = default;
     ~Command() = default;
-    AMY_UNIQUE(Command)
+    AMY_RAW(Command)
 
     Command& Add(const u16& idx) {
       IndexBuf.push_back(VertexBuf.size() + idx);
@@ -56,6 +57,16 @@ class Iron {
       return *this;
     }
 
+    void Clear() {
+      VertexBuf.clear();
+      IndexBuf.clear();
+      Index = 0;
+      Layer = 0;
+      Tex = nullptr;
+      ScissorOn = false;
+      ScissorRect = ivec4();
+    }
+
     std::vector<Vertex> VertexBuf;
     std::vector<u16> IndexBuf;
     ivec4 ScissorRect;
@@ -63,6 +74,72 @@ class Iron {
     int Layer = 0;
     int Index = 0;
     Texture::Ref Tex = nullptr;
+  };
+
+  class CmdPool {
+   public:
+    CmdPool() {}
+    ~CmdPool() {}
+
+    Command::Ref NewCmd() {
+      if (pPoolIdx >= pPool.size()) {
+        Resize(pPool.size() + 128);
+      }
+      Command::Ref nu = pPool[pPoolIdx++];
+      nu->Layer = Layer;
+      nu->Index = pPoolIdx - 1;
+      return nu;
+    }
+
+    void Init(size_t initial_size) { Resize(initial_size); }
+
+    void Deinit() {
+      for (auto it : pPool) {
+        Command::Delete(it);
+      }
+      pPool.clear();
+    }
+
+    void Resize(size_t nulen) {
+      if (nulen <= pPool.size()) {
+        return;  // no idea yet
+      }
+      size_t oldlen = pPool.size();
+      pPool.resize(nulen);
+      for (size_t i = oldlen; i < pPool.size(); i++) {
+        pPool[i] = Command::New();
+      }
+    }
+
+    void Reset() {
+      for (ui i = 0; i < pPoolIdx; i++) {
+        pPool[i]->Clear();
+      }
+      pPoolIdx = 0;
+    }
+
+    Command::Ref GetCmd(size_t idx) const { return pPool[idx]; }
+    Command::Ref GetCmd(size_t idx) { return pPool[idx]; }
+
+    size_t Size() const { return pPoolIdx; }
+    size_t Cap() const { return pPool.size(); }
+
+    void Merge(CmdPool& p) {
+      if (pPoolIdx + p.Size() > pPool.size()) {
+        Resize(pPoolIdx + p.Size());
+      }
+      for (size_t i = 0; i < p.Size(); i++) {
+        size_t idx = pPoolIdx++;
+        *pPool[idx] = *p.GetCmd(i);
+        pPool[idx]->Index = idx;
+      }
+      p.Reset();
+    }
+
+   private:
+    std::vector<Command::Ref> pPool;
+    ui pPoolIdx = 0;
+    int Layer = 0;
   };
 
   class Font : public Asset {
@@ -90,9 +167,8 @@ class Iron {
     Codepoint& GetCodepoint(ui c);
 
     fvec2 GetTextBounds(ksr text, float scale);
-    void CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
-                   float scale, ksr text, AmyTextFlags flags = 0,
-                   const fvec2& box = 0);
+    void CmdTextEx(CmdPool& cmds, const fvec2& pos, ui color, float scale,
+                   ksr text, AmyTextFlags flags = 0, const fvec2& box = 0);
     void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture::Ref tex);
 
     int PxHeight;
@@ -103,8 +179,11 @@ class Iron {
 
   class Drawlist {
    public:
-    Drawlist() { DrawSolid(); }
-    ~Drawlist() { pData.clear(); }
+    Drawlist() {
+      DrawSolid();
+      pPool.Init(64);
+    }
+    ~Drawlist() { pPool.Deinit(); }
     AMY_SHARED(Drawlist)
 
     // required due to memory management
@@ -113,7 +192,7 @@ class Iron {
     Drawlist(Drawlist&&) noexcept = default;
     Drawlist& operator=(Drawlist&&) noexcept = default;
 
-    std::vector<Command::Ref>& Data() { return pData; }
+    const CmdPool& Data() const { return pPool; }
 
     void Merge(Drawlist* list);
     Command::Ref NewCommand();
@@ -178,11 +257,11 @@ class Iron {
       if (!ClipRects.empty()) ClipRects.pop();
     }
 
-    operator std::vector<Command::Ref>&() { return pData; }
+    operator const CmdPool&() const { return pPool; }
 
    private:
     void clipCmd(Command* ptr);
-    std::vector<Command::Ref> pData;
+    CmdPool pPool;
     std::vector<fvec2> pPath;
     Texture::Ref pTex = nullptr;
     std::stack<fvec4> ClipRects;
@@ -197,7 +276,7 @@ class Iron {
   static void Exit();
   static void NewFrame();
   static void DrawOn(C3D::Screen* screen);
-  static void Draw(const std::vector<Command::Ref>& data);
+  static void Draw(const CmdPool& data);
   static Texture::Ref WhiteTex() { return m_solid; }
 
   /** Static renderer utility funcs */

@@ -28,6 +28,16 @@
     return std::make_unique<x>(std::forward<Args>(args)...); \
   }
 
+#define AMY_RAW(x)                          \
+  using Ref = x*;                           \
+  template <typename... Args>               \
+  static Ref New(Args&&... args) {          \
+    x* v = new x;                           \
+    new (v) x(std::forward<Args>(args)...); \
+    return v;                               \
+  }                                         \
+  static void Delete(Ref ref) { delete ref; }
+
 namespace Amy {
 using uc = unsigned char;
 using us = unsigned short;

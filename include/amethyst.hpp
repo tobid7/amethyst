@@ -22,6 +22,11 @@ struct MemMetrics {
   std::atomic<ull> Current = 0;      ///< Current Allocated Memory
   std::atomic<ull> Deleted = 0;      ///< Total Deleted Memory
   std::atomic<ull> Allocations = 0;  ///< Current Allocations count
+  ull _malloc = 0;
+  ull _calloc = 0;
+  ull _realloc = 0;
+  ull _free = 0;
+  ull _memalign = 0;
   /// @brief Gets the Currently Allocated Memory
   ull CurrentlyAllocated() { return Current; }
 };
@@ -29,6 +34,7 @@ ull GetTotalAllocated();
 ull GetTotalFreed();
 ull GetCurrent();
 ull GetAllocationCount();
+const MemMetrics& GetMetrics();
 }  // namespace Memory
 }  // namespace Amy
 

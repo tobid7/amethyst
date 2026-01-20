@@ -77,25 +77,26 @@ void Iron::DrawOn(C3D::Screen* screen) {
   m_shader->SetMat4(uLocProj, m_mtx);
 }
 
-void Iron::Draw(const std::vector<Iron::Command::Ref>& data) {
+void Iron::Draw(const CmdPool& data) {
   // disable depthtest cause we have no z buffer
   C3D::DepthTest(false);
   size_t i = 0;
-  while (i < data.size()) {
-    Texture::Ref tex = data[i]->Tex;
+  while (i < data.Size()) {
+    Texture::Ref tex = data.GetCmd(i)->Tex;
     if (!tex || !tex->Ptr()) {
       i++;
       continue;
     }
     pFragConfig(tex->Ptr()->fmt);
-    auto scissorOn = data[i]->ScissorOn;
-    auto scissor = data[i]->ScissorRect;
+    auto scissorOn = data.GetCmd(i)->ScissorOn;
+    auto scissor = data.GetCmd(i)->ScissorRect;
     auto start = m_idx;
 
     // Loop until a statgechange and copy all data into Vertex/index buf
-    while (i < data.size() && scissorOn == data[i]->ScissorOn &&
-           scissor == data[i]->ScissorRect && tex == data[i]->Tex) {
-      auto c = data[i].get();
+    while (i < data.Size() && scissorOn == data.GetCmd(i)->ScissorOn &&
+           scissor == data.GetCmd(i)->ScissorRect &&
+           tex == data.GetCmd(i)->Tex) {
+      auto c = data.GetCmd(i);
 
       if (!pCheckSize(c->IndexBuf.size(), c->VertexBuf.size())) {
         throw Error("iron: too much draw data!!!" +

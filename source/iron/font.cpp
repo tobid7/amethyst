@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <fstream>
 
-//#ifdef AMY_STB_TT
+// #ifdef AMY_STB_TT
 #define STB_TRUETYPE_IMPLEMENTATION
-//#endif
+// #endif
 #include <stb_truetype.h>
 
 namespace Amy {
@@ -230,7 +230,7 @@ fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
   return res;
 }
 
-void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
+void Iron::Font::CmdTextEx(CmdPool& cmds, const fvec2& pos, ui color,
                            float scale, const std::string& text,
                            AmyTextFlags flags, const fvec2& box) {
   fvec2 off;
@@ -256,6 +256,9 @@ void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
     lines.push_back(tmp);
   }
 
+  static us Str16[512] = {0};
+  Utils::String2U16(Str16, text, 512);
+
   for (auto& it : lines) {
     /*if (flags & AmyTextFlags_Short) {
       fvec2 tmp_dim;
@@ -263,7 +266,7 @@ void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
     }*/
     // Bitte nicht nachmachen... Also ernsthaft jz, bitte macht das nicht
     auto wline = std::filesystem::path(it).wstring();
-    auto cmd = Command::New();
+    auto cmd = cmds.NewCmd();
     auto Tex = GetCodepoint(wline[0]).Tex;
     cmd->Tex = Tex;
     for (auto& jt : wline) {
@@ -273,8 +276,7 @@ void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
         continue;
       }
       if (Tex != cp.Tex) {
-        cmds.push_back(std::move(cmd));
-        cmd = Command::New();
+        cmd = cmds.NewCmd();
         Tex = cp.Tex;
         cmd->Tex = Tex;
       }
@@ -287,19 +289,18 @@ void Iron::Font::CmdTextEx(vec<Command::Ref>& cmds, const fvec2& pos, ui color,
             Rect rec = Iron::PrimRect(
                 rpos + vec2(off.x + 1, off.y + (cp.Offset * cfs)) + 1,
                 cp.Size * cfs, 0.f);
-            Iron::CmdQuad(cmd.get(), rec, cp.Uv, 0xff111111);
+            Iron::CmdQuad(cmd, rec, cp.Uv, 0xff111111);
           }
           // Draw
           Rect rec = Iron::PrimRect(rpos + off + fvec2(0, (cp.Offset * cfs)),
                                     cp.Size * cfs, 0.f);
-          Iron::CmdQuad(cmd.get(), rec, cp.Uv, color);
+          Iron::CmdQuad(cmd, rec, cp.Uv, color);
           off.x += cp.Size.x * cfs + 2 * cfs;
         } else {
           off.x += 4 * cfs;
         }
       }
     }
-    cmds.push_back(std::move(cmd));
     off.y += lh;
     off.x = 0;
   }

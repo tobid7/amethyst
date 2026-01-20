@@ -17,14 +17,12 @@ namespace Amy {
 constexpr auto __pi = std::numbers::pi;
 
 void Iron::Drawlist::Merge(Iron::Drawlist* list) {
-  for (size_t i = 0; i < list->pData.size(); i++) {
-    pData.push_back(std::move(list->pData[i]));
-  }
+  pPool.Merge(list->pPool);
   list->Clear();
 }
 
 void Iron::Drawlist::Clear() {
-  pData.clear();
+  pPool.Reset();
   pPath.clear();
   DrawSolid();
   while (!ClipRects.empty()) {
@@ -34,11 +32,11 @@ void Iron::Drawlist::Clear() {
 }
 
 Iron::Command::Ref Iron::Drawlist::NewCommand() {
-  auto ret = Command::New();
+  auto ret = pPool.NewCmd();
   ret->Layer = pLayer;
-  ret->Index = pData.size();
+  ret->Index = pPool.Size() - 1;
   ret->Tex = pTex;
-  return std::move(ret);
+  return ret;
 }
 
 void Iron::Drawlist::clipCmd(Command* ptr) {
@@ -47,8 +45,6 @@ void Iron::Drawlist::clipCmd(Command* ptr) {
     ptr->ScissorRect = ivec4(ClipRects.top());
   }
 }
-
-void Iron::Drawlist::Push(Command::Ref cmd) { pData.push_back(std::move(cmd)); }
 
 void Iron::Drawlist::DrawSolid() { pTex = Iron::WhiteTex(); }
 
@@ -216,8 +212,7 @@ void Iron::Drawlist::DrawFromAtlas(fvec2 pos, fvec2 size, fvec4 cut_rect,
   auto uv = cut_rect / fvec4(pTex->Size(), pTex->Size());
   uv.y = 1.f - uv.y;
   uv.w = 1.f - uv.w;
-  Iron::CmdQuad(cmd.get(), r, uv, color);
-  Push(std::move(cmd));
+  Iron::CmdQuad(cmd, r, uv, color);
 }
 
 void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2>& points, ui clr,
@@ -236,10 +231,9 @@ void Iron::Drawlist::DrawPolyLine(const std::vector<fvec2>& points, ui clr,
     for (int i = 0; i < num_points; i++) {
       int j = (i + 1) == (int)points.size() ? 0 : (i + 1);
       auto line = PrimLine(points[i], points[j], thickness);
-      CmdQuad(cmd.get(), line, fvec4(0.f, 1.f, 1.f, 0.f), clr);
+      CmdQuad(cmd, line, fvec4(0.f, 1.f, 1.f, 0.f), clr);
     }
   }
-  Push(std::move(cmd));
 }
 
 void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2>& points,
@@ -248,8 +242,7 @@ void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2>& points,
     return;  // Need at least three points
   }
   auto cmd = NewCommand();
-  CmdConvexPolyFilled(cmd.get(), points, clr, pTex);
-  Push(std::move(cmd));
+  CmdConvexPolyFilled(cmd, points, clr, pTex);
 }
 
 void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
@@ -257,13 +250,7 @@ void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
   if (!pCurrentFont) {
     return;
   }
-  std::vector<Command::Ref> cmds;
-  pCurrentFont->CmdTextEx(cmds, pos, color, pFontScale, text);
-  for (size_t i = 0; i < cmds.size(); i++) {
-    cmds[i]->Index = pData.size();
-    cmds[i]->Layer = pLayer;
-    Push(std::move(cmds[i]));
-  }
+  pCurrentFont->CmdTextEx(pPool, pos, color, pFontScale, text);
 }
 
 void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
@@ -271,13 +258,7 @@ void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
   if (!pCurrentFont) {
     return;
   }
-  std::vector<Command::Ref> cmds;
-  pCurrentFont->CmdTextEx(cmds, p, color, pFontScale, text, flags, box);
-  for (size_t i = 0; i < cmds.size(); i++) {
-    cmds[i]->Index = pData.size();
-    cmds[i]->Layer = pLayer;
-    Push(std::move(cmds[i]));
-  }
+  pCurrentFont->CmdTextEx(pPool, p, color, pFontScale, text, flags, box);
 }
 
 void Iron::Drawlist::DrawLine(const fvec2& a, const fvec2& b, ui color, int t) {
