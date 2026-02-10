@@ -1,7 +1,7 @@
 #pragma once
 
-#include <amethyst/types.hpp>
 #include <amethyst/id.hpp>
+#include <amethyst/types.hpp>
 
 namespace Amy {
 class GTrace {

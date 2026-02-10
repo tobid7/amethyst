@@ -69,7 +69,7 @@ void C3D::Shader::Load(const std::vector<uc>& data) {
 }
 
 void C3D::Shader::Compile(const std::string& code) {
-  Load(Pica::AssembleCode(code.c_str()));
+  // Load(Pica::AssembleCode(code.c_str()));
 }
 
 void C3D::Shader::Use() {

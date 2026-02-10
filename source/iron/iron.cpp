@@ -50,10 +50,10 @@ ui Iron::VertexCount = 0;
 ui Iron::IndexCount = 0;
 
 void Iron::Init() {
-  pSetupShader();
   m_vbuf.resize(4 * 4096);
   m_ibuf.resize(6 * 4096);
   pInitSolidTex();
+  pSetupShader();
 }
 
 void Iron::Exit() {
@@ -127,7 +127,8 @@ bool Iron::pCheckSize(size_t idx, size_t vtx) {
 
 void Iron::pSetupShader() {
   m_shader = new C3D::Shader();
-  m_shader->Compile(__ironshader__);
+  m_shader->Load("romfs:/shaders/lithium.shbin");
+  // m_shader->Compile(__ironshader__);
   m_shader->Input(GPU_FLOAT, 2);          // pos
   m_shader->Input(GPU_FLOAT, 2);          // uv
   m_shader->Input(GPU_UNSIGNED_BYTE, 4);  // color
