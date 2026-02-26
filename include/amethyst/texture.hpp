@@ -10,17 +10,23 @@
 namespace Amy {
 class Texture : public Asset {
  public:
+  enum Wrap_ {
+    ClampToEdge,
+    ClampToBorder,
+    Repeat,
+  };
   Texture() = default;
   Texture(ksr path);
-  Texture(C3D_Tex* tex, const ivec2& size, const Rect& uv) {
+  Texture(C3D_Tex* tex, const ivec2& size, const Rect& uv,
+          const Wrap_& wrap = ClampToBorder) {
     Load(tex, size, uv);
   }
   ~Texture();
   AMY_SHARED(Texture);
 
-  void Load(ksr path);
+  void Load(ksr path, const Wrap_& wrap = ClampToBorder);
   void Load(kvr<uc> pixels, int w, int h, int bpp = 4,
-            Image::Format fmt = Image::RGBA);
+            Image::Format fmt = Image::RGBA, const Wrap_& wrap = ClampToBorder);
   void Load(C3D_Tex* tex, const ivec2& size, const Rect& uv) {
     Unload();
     pTex = tex;
@@ -31,6 +37,8 @@ class Texture : public Asset {
   void Unload();
   void Unloadable(bool v) { pLoaded = v; }
   bool Unloadable() { return pLoaded; }
+  void Wrap(const Wrap_& wrap) { Wrap(wrap, wrap); }
+  void Wrap(const Wrap_& wx, const Wrap_& wy);
 
   int W() const { return pSize.x; }
   int& W() { return pSize.x; }

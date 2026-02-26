@@ -21,10 +21,10 @@ void Iron::Font::LoadBMF(ksr path) {
   auto base = Amy::Texture::New();
   base->Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp(), img.Fmt());
   base->Unloadable(false);
-  PxHeight = img.Height() / 16;
+  PxHeight = img.Height() * 0.0625;  // 1/16 multiplikation
   for (int i = 0; i < img.Height(); i += PxHeight) {
     for (int j = 0; j < img.Width(); j += PxHeight) {
-      int maxw = 0;
+      int maxw = 1;
       Amy::Texture::Ref tex = Amy::Texture::New();
       for (int y = i; y < i + PxHeight; y++) {
         for (int x = j; x < j + PxHeight; x++) {

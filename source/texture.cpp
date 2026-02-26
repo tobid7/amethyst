@@ -34,6 +34,18 @@ GPU_TEXCOLOR image2TexFmt(const Image::Format& fmt) {
       break;
   }
 }
+
+GPU_TEXTURE_WRAP_PARAM amyToGpu(const Texture::Wrap_& w) {
+  // clang-format off
+  switch(w) {
+      case Texture::ClampToBorder: return GPU_CLAMP_TO_BORDER; break;
+      case Texture::ClampToEdge: return GPU_CLAMP_TO_EDGE; break;
+      case Texture::Repeat: return GPU_REPEAT; break;
+      default: return GPU_CLAMP_TO_BORDER; break;
+  }
+  // clang-format on
+}
+
 Texture::Texture(ksr path) { Load(path); }
 
 Texture::~Texture() { Unload(); }
@@ -47,12 +59,13 @@ void Texture::Unload() {
   }
 }
 
-void Texture::Load(ksr path) {
+void Texture::Load(ksr path, const Wrap_& wrap) {
   Image img(path);
-  Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp(), img.Fmt());
+  Load(img.GetBuffer(), img.Width(), img.Height(), img.Bpp(), img.Fmt(), wrap);
 }
 
-void Texture::Load(kvr<uc> pixels, int w, int h, int bpp, Image::Format fmt) {
+void Texture::Load(kvr<uc> pixels, int w, int h, int bpp, Image::Format fmt,
+                   const Wrap_& wrap) {
   if (w > 1024 || h > 1024) {
     throw std::runtime_error("[amy] texture: Max Texture Size is 1024x1024!");
   }
@@ -88,8 +101,12 @@ void Texture::Load(kvr<uc> pixels, int w, int h, int bpp, Image::Format fmt) {
   }
   C3D_TexFlush(pTex);
   pTex->border = 0x00000000;
-  C3D_TexSetWrap(pTex, GPU_REPEAT, GPU_REPEAT);
+  Wrap(wrap);
   pLoaded = true;
+}
+
+void Texture::Wrap(const Wrap_& wx, const Wrap_& wy) {
+  C3D_TexSetWrap(pTex, amyToGpu(wx), amyToGpu(wy));
 }
 
 void Texture::Bind(int reg) { C3D_TexBind(reg, pTex); }

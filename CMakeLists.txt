@@ -46,14 +46,14 @@ if(AMY_BUILD_STB_TRUETYPE)
     target_compile_definitions(${PROJECT_NAME} PUBLIC AMY_STB_TT)
 endif()
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-target_link_options(${PROJECT_NAME} PUBLIC
-    "-Wl,--wrap=malloc"
-    "-Wl,--wrap=free"
-    "-Wl,--wrap=realloc"
-    "-Wl,--wrap=calloc"
-    "-Wl,--wrap,memalign"
-    "-Wl,--wrap,aligned_alloc"
-)
+    target_link_options(${PROJECT_NAME} PUBLIC
+        "-Wl,--wrap=malloc"
+        "-Wl,--wrap=free"
+        "-Wl,--wrap=realloc"
+        "-Wl,--wrap=calloc"
+        "-Wl,--wrap,memalign"
+        "-Wl,--wrap,aligned_alloc"
+    )
 endif()
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wno-psabi)
