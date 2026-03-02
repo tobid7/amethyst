@@ -2,6 +2,7 @@
 #include <amethyst/c3d.hpp>
 #include <amethyst/iron.hpp>
 #include <amethyst/texture.hpp>
+#include <filesystem>
 
 namespace Amy {
 void AssetMgr::AutoLoad(const ID& id, ksr path) {
@@ -22,5 +23,16 @@ void AssetMgr::AutoLoad(const ID& id, ksr path) {
     throw std::runtime_error("[amy]: assets: " + id.GetName() + " (" + path +
                              ") is unsupported for AssetMgr::AutoLoad!");
   }
+}
+
+const std::string AssetMgr::TryFind(const std::string& path) {
+  for (const auto& it : pPath) {
+    std::string r = it + path;
+    if (std::filesystem::exists(r)) {
+      return r;
+    }
+  }
+  throw std::runtime_error("Path '" + path + "' does not exist in $ENV{PATH}!");
+  return "";
 }
 }  // namespace Amy

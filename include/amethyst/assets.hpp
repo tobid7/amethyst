@@ -11,6 +11,13 @@ class AssetMgr {
   AssetMgr() = default;
   ~AssetMgr() = default;
 
+  /**
+   * Create some Environment like PATH variable.
+   */
+  void AppendPath(const std::string& path) { pPath.push_back(path); }
+
+  const std::string TryFind(const std::string& path);
+
   void AutoLoad(const ID& name, ksr path);
 
   void Add(const ID& id, Asset::Ref v) {
@@ -65,5 +72,6 @@ class AssetMgr {
 
  private:
   std::map<ID, Asset::Ref> pAssets;
+  std::vector<std::string> pPath;
 };
 }  // namespace Amy
