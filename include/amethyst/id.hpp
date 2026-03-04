@@ -7,7 +7,7 @@ namespace Amy {
 class ID {
  public:
   constexpr ID(const ui& id) { pID = id; }
-  constexpr ID(std::string name) {
+  ID(const std::string& name) {
     pID = Utils::FNV32(name);
 #ifdef AMY_KEEP_STR_ID
     pName = name;

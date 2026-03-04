@@ -245,16 +245,15 @@ void Iron::Drawlist::DrawConvexPolyFilled(const std::vector<fvec2>& points,
   CmdConvexPolyFilled(cmd, points, clr, pTex);
 }
 
-void Iron::Drawlist::DrawText(const fvec2& pos, const std::string& text,
-                              ui color) {
+void Iron::Drawlist::DrawText(const fvec2& pos, const char* text, ui color) {
   if (!pCurrentFont) {
     return;
   }
   pCurrentFont->CmdTextEx(pPool, pos, color, pFontScale, text);
 }
 
-void Iron::Drawlist::DrawTextEx(const fvec2& p, const std::string& text,
-                                ui color, ui flags, const fvec2& box) {
+void Iron::Drawlist::DrawTextEx(const fvec2& p, const char* text, ui color,
+                                ui flags, const fvec2& box) {
   if (!pCurrentFont) {
     return;
   }

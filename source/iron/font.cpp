@@ -25,7 +25,7 @@ void Iron::Font::LoadBMF(ksr path) {
   for (int i = 0; i < img.Height(); i += PxHeight) {
     for (int j = 0; j < img.Width(); j += PxHeight) {
       int maxw = 1;
-      Amy::Texture::Ref tex = Amy::Texture::New();
+      // Amy::Texture::Ref tex = Amy::Texture::New();
       for (int y = i; y < i + PxHeight; y++) {
         for (int x = j; x < j + PxHeight; x++) {
           if (img.GetBuffer()[y * img.Width() + x] != 0) {
@@ -38,18 +38,18 @@ void Iron::Font::LoadBMF(ksr path) {
       cp.Cp = (i / PxHeight) * 16 + (j / PxHeight);
       cp.Offset = 0.f;
       if (cp.Valid) {
-        tex->Load(base->Ptr(), base->Size(), base->Uv());
+        // tex->Load(base->Ptr(), base->Size(), base->Uv());
         cp.Size = fvec2(maxw + 1, PxHeight);
-        cp.Tex = tex;
+        cp.Tex = base;
         cp.Uv = fvec4(float(j) / float(img.Width()),
                       1.f - float(i) / float(img.Height()),
                       float(j + maxw + 1) / float(img.Width()),
                       1.f - float(i + PxHeight) / float(img.Height()));
-        Textures.push_back(tex);
       }
       pCodeMap[(i / PxHeight) * 16 + (j / PxHeight)] = cp;
     }
   }
+  Textures.push_back(base);
 }
 
 void Iron::Font::LoadTTF(ksr path, int size) {
@@ -185,26 +185,21 @@ Iron::Font::Codepoint& Iron::Font::GetCodepoint(ui cp) {
   return res->second;
 }
 
-fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
-  // Use wstring for exemple for german äöü
-  auto wtext = std::filesystem::path(text).wstring();
+fvec2 Iron::Font::GetTextBounds(const char* text, float scale) {
   // Create a temp position and offset as [0, 0]
   fvec2 res;
   float x = 0;
   // Curent Font Scale
   float cfs = (PxFactor * scale) / (float)PxHeight;
   float lh = (float)PxHeight * cfs;
-  size_t index = 0;
-  for (auto& it : wtext) {
-    if (it == L'\0') {
-      break;
-    }
-    index++;
-    auto cp = GetCodepoint(it);
-    if (!cp.Valid && it != '\n' && it != '\t' && it != ' ') {
+  Utils::U8Iterator it(text);
+  ui c;
+  while (it.Decode32(c)) {
+    auto cp = GetCodepoint(c);
+    if (!cp.Valid && c != '\n' && c != '\t' && c != ' ') {
       continue;
     }
-    switch (it) {
+    switch (c) {
       case L'\n':
         res.y += lh;
         res.x = std::max(res.x, x);
@@ -219,7 +214,8 @@ fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
       // TextCommand if/else Section
       default:
         x += cp.Size.x * cfs;
-        if (index != wtext.size()) {
+        // Omly passing c cause i know its not used
+        if (it.PeekNext32(c)) {
           x += 2 * cfs;
         }
         break;
@@ -231,78 +227,62 @@ fvec2 Iron::Font::GetTextBounds(ksr text, float scale) {
 }
 
 void Iron::Font::CmdTextEx(CmdPool& cmds, const fvec2& pos, ui color,
-                           float scale, const std::string& text,
-                           AmyTextFlags flags, const fvec2& box) {
+                           float scale, const char* text, AmyTextFlags flags,
+                           const fvec2& box) {
   fvec2 off;
   float cfs = (PxFactor * scale) / (float)PxHeight;
   float lh = (float)PxHeight * cfs;
   fvec2 td;
   fvec2 rpos = pos;
   fvec2 rbox = box;
+
   if (flags & (AmyTextFlags_AlignMid | AmyTextFlags_AlignRight)) {
     td = GetTextBounds(text, scale);
   }
-  if (flags & AmyTextFlags_AlignMid) {
-    rpos = rbox * 0.5 - td * 0.5 + pos;
-  }
-  if (flags & AmyTextFlags_AlignRight) {
-    rpos.x = rpos.x - td.x;
-  }
+  if (flags & AmyTextFlags_AlignMid) rpos = rbox * 0.5 - td * 0.5 + pos;
+  if (flags & AmyTextFlags_AlignRight) rpos.x -= td.x;
 
-  std::vector<std::string> lines;
-  std::istringstream iss(text);
-  std::string tmp;
-  while (std::getline(iss, tmp)) {
-    lines.push_back(tmp);
-  }
+  Utils::U8Iterator it(text);
+  ui c;
+  Iron::Command::Ref cmd = nullptr;
 
-  static us Str16[512] = {0};
-  Utils::String2U16(Str16, text, 512);
+  while (it.Decode32(c)) {
+    auto cp = GetCodepoint(c);
+    if ((!cp.Valid && c != '\n' && c != '\t' && c != ' ') && c != '\r')
+      continue;
 
-  for (auto& it : lines) {
-    /*if (flags & AmyTextFlags_Short) {
-      fvec2 tmp_dim;
-      it = ShortText(it, box.x() - pos.x(), tmp_dim);
-    }*/
-    // Bitte nicht nachmachen... Also ernsthaft jz, bitte macht das nicht
-    auto wline = std::filesystem::path(it).wstring();
-    auto cmd = cmds.NewCmd();
-    auto Tex = GetCodepoint(wline[0]).Tex;
-    cmd->Tex = Tex;
-    for (auto& jt : wline) {
-      auto cp = GetCodepoint(jt);
-      if ((!cp.Valid && jt != L' ' && jt != L'\n' && jt != L'\t') &&
-          jt != L'\r') {
-        continue;
-      }
-      if (Tex != cp.Tex) {
-        cmd = cmds.NewCmd();
-        Tex = cp.Tex;
-        cmd->Tex = Tex;
-      }
-      if (jt == L'\t') {
-        off.x += 16 * cfs;
-      } else {
-        if (jt != L' ') {
-          if (flags & AmyTextFlags_Shaddow) {
-            // Draw
-            Rect rec = Iron::PrimRect(
-                rpos + vec2(off.x + 1, off.y + (cp.Offset * cfs)) + 1,
-                cp.Size * cfs, 0.f);
-            Iron::CmdQuad(cmd, rec, cp.Uv, 0xff111111);
-          }
-          // Draw
-          Rect rec = Iron::PrimRect(rpos + off + fvec2(0, (cp.Offset * cfs)),
-                                    cp.Size * cfs, 0.f);
-          Iron::CmdQuad(cmd, rec, cp.Uv, color);
-          off.x += cp.Size.x * cfs + 2 * cfs;
-        } else {
-          off.x += 4 * cfs;
-        }
-      }
+    if (c == L'\n') {
+      off.y += lh;
+      off.x = 0.f;
+      continue;
     }
-    off.y += lh;
-    off.x = 0;
+
+    if (c == L'\t') {
+      off.x += 16 * cfs;
+      continue;
+    }
+    if (c == L' ') {
+      off.x += 4 * cfs;
+      continue;
+    }
+
+    if (cmd == nullptr || cmd->Tex != cp.Tex) {
+      if (cp.Tex == nullptr || cp.Tex->Ptr() == nullptr) continue;
+      cmd = cmds.NewCmd();
+      cmd->Tex = cp.Tex;
+    }
+
+    if (flags & AmyTextFlags_Shaddow) {
+      Rect rec = Iron::PrimRect(rpos + off + fvec2(1, cp.Offset * cfs + 1),
+                                cp.Size * cfs, 0.f);
+      Iron::CmdQuad(cmd, rec, cp.Uv, 0xff111111);
+    }
+
+    Rect rec = Iron::PrimRect(rpos + off + fvec2(0, cp.Offset * cfs),
+                              cp.Size * cfs, 0.f);
+    Iron::CmdQuad(cmd, rec, cp.Uv, color);
+
+    off.x += cp.Size.x * cfs + 2 * cfs;
   }
 }
 }  // namespace Amy

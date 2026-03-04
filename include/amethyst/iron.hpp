@@ -4,6 +4,7 @@
 #include <amethyst/linearAlloc.hpp>
 #include <amethyst/maths/mat.hpp>
 #include <amethyst/maths/vec.hpp>
+#include <amethyst/pool.hpp>
 #include <amethyst/rect.hpp>
 #include <amethyst/texture.hpp>
 #include <amethyst/types.hpp>
@@ -46,30 +47,47 @@ class Iron {
    public:
     Command() = default;
     ~Command() = default;
-    AMY_RAW(Command)
+    AMY_RAW(Command);
+
+    void PreAllocate(size_t vtx, size_t idx) {
+      if (!FirstVertex)
+        FirstVertex = Iron::AllocateVerteces(vtx);
+      else
+        Iron::AllocateVerteces(vtx);  // Move the ptr in pool (dirty)
+      if (!FirstIndex)
+        FirstIndex = Iron::AllocateIndices(idx);
+      else
+        Iron::AllocateIndices(idx);  // Move the ptr in pool (dirty)
+    }
 
     Command& Add(const u16& idx) {
-      IndexBuf.push_back(VertexBuf.size() + idx);
+      *(FirstIndex + IndexCount) = VertexCount + idx;
+      IndexCount++;
       return *this;
     }
     Command& Add(const Vertex& vtx) {
-      VertexBuf.push_back(std::move(vtx));
+      *(FirstVertex + VertexCount) = vtx;
+      VertexCount++;
       return *this;
     }
 
     void Clear() {
-      VertexBuf.clear();
-      IndexBuf.clear();
+      FirstVertex = nullptr;
+      FirstIndex = nullptr;
       Index = 0;
       Layer = 0;
+      IndexCount = 0;
+      VertexCount = 0;
       Tex = nullptr;
       ScissorOn = false;
       ScissorRect = ivec4();
     }
 
-    std::vector<Vertex> VertexBuf;
-    std::vector<u16> IndexBuf;
-    ivec4 ScissorRect;
+    Vertex* FirstVertex = nullptr;
+    u16* FirstIndex = nullptr;
+    u16 IndexCount = 0;
+    u16 VertexCount = 0;
+    ivec4 ScissorRect = ivec4(0);
     bool ScissorOn = false;
     int Layer = 0;
     int Index = 0;
@@ -166,9 +184,17 @@ class Iron {
 
     Codepoint& GetCodepoint(ui c);
 
-    fvec2 GetTextBounds(ksr text, float scale);
+    fvec2 GetTextBounds(const char* text, float scale);
+    fvec2 GetTextBounds(ksr text, float scale) {
+      return GetTextBounds(text.c_str(), scale);
+    }
     void CmdTextEx(CmdPool& cmds, const fvec2& pos, ui color, float scale,
-                   ksr text, AmyTextFlags flags = 0, const fvec2& box = 0);
+                   const char* text, AmyTextFlags flags = 0,
+                   const fvec2& box = 0);
+    void CmdTextEx(CmdPool& cmds, const fvec2& pos, ui color, float scale,
+                   ksr text, AmyTextFlags flags = 0, const fvec2& box = 0) {
+      CmdTextEx(cmds, pos, color, scale, text.c_str(), flags, box);
+    }
     void pMakeAtlas(bool final, vec<uc>& pixels, int size, Texture::Ref tex);
 
     int PxHeight;
@@ -225,9 +251,16 @@ class Iron {
                     int thickness = 1);
     void DrawCircleFilled(const fvec2& center, float radius, ui color,
                           int segments);
-    void DrawText(const fvec2& pos, const std::string& text, ui color);
+    void DrawText(const fvec2& pos, const char* text, ui color);
+    void DrawTextEx(const fvec2& pos, const char* text, ui color, ui flags,
+                    const fvec2& box = 0);
+    void DrawText(const fvec2& pos, const std::string& text, ui color) {
+      DrawText(pos, text.c_str(), color);
+    }
     void DrawTextEx(const fvec2& pos, const std::string& text, ui color,
-                    ui flags, const fvec2& box = 0);
+                    ui flags, const fvec2& box = 0) {
+      DrawTextEx(pos, text.c_str(), color, flags, box);
+    }
     void DrawLine(const fvec2& a, const fvec2& b, ui color, int thickness = 1);
     void DrawPolyLine(const std::vector<fvec2>& points, ui color, ui flags = 0,
                       int thickness = 1);
@@ -298,6 +331,15 @@ class Iron {
   static ui VerticesDrawn() { return VertexCount; }
   static ui IndicesDrawn() { return IndexCount; }
 
+  static Vertex* AllocateVerteces(size_t count) {
+    return pVertexPool.Allocate(count);
+  }
+  static u16* AllocateIndices(size_t count) {
+    return pIndexPool.Allocate(count);
+  }
+
+  static ui GetDrawCalls() { return DrawCalls; }
+
  private:
   static void pSetupShader();
   static void pFragConfig(GPU_TEXCOLOR clr);
@@ -313,5 +355,9 @@ class Iron {
   static Texture::Ref m_solid;
   static ui VertexCount;
   static ui IndexCount;
+  static ui DrawCalls;
+  static ui __DC;
+  static Pool<Vertex> pVertexPool;
+  static Pool<u16> pIndexPool;
 };
 }  // namespace Amy

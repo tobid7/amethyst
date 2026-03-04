@@ -48,12 +48,20 @@ int Iron::m_idx = 0, Iron::m_vtx = 0;
 Texture::Ref Iron::m_solid = nullptr;
 ui Iron::VertexCount = 0;
 ui Iron::IndexCount = 0;
+Pool<Iron::Vertex> Iron::pVertexPool;
+Pool<u16> Iron::pIndexPool;
+ui Iron::DrawCalls = 0;
+ui Iron::__DC = 0;
 
 void Iron::Init() {
   m_vbuf.resize(4 * 4096);
   m_ibuf.resize(6 * 4096);
+  pVertexPool.Init(4 * 4096);
+  pIndexPool.Init(6 * 4096);
   pInitSolidTex();
   pSetupShader();
+  __DC = 0;
+  DrawCalls = 0;
 }
 
 void Iron::Exit() {
@@ -68,6 +76,10 @@ void Iron::NewFrame() {
   IndexCount = m_idx;
   m_idx = 0;
   m_vtx = 0;
+  DrawCalls = __DC;
+  __DC = 0;
+  pVertexPool.Reset();
+  pIndexPool.Reset();
 }
 
 void Iron::DrawOn(C3D::Screen* screen) {
@@ -77,8 +89,24 @@ void Iron::DrawOn(C3D::Screen* screen) {
   m_shader->SetMat4(uLocProj, m_mtx);
 }
 
+void HackyDump(const Iron::CmdPool& data) {
+  std::ofstream off("rc_amy_dump.txt");
+  for (size_t i = 0; i < data.Size(); i++) {
+    auto c = data.GetCmd(i);
+    off << std::format("Command: {}, Tex({:08X})\n", i,
+                       (unsigned int)c->Tex->Ptr());
+    for (int j = 0; j < c->IndexCount; j++) {
+      auto& v = c->FirstVertex[c->FirstIndex[j]];
+      off << std::format("  Vertex([{}], [{}], {:08X})\n", v.pos, v.uv,
+                         v.color);
+    }
+  }
+  throw std::runtime_error("Amy Iron CMD Dump Created!");
+}
+
 void Iron::Draw(const CmdPool& data) {
-  // disable depthtest cause we have no z buffer
+  // HackyDump(data);
+  //  disable depthtest cause we have no z buffer
   C3D::DepthTest(false);
   size_t i = 0;
   while (i < data.Size()) {
@@ -93,22 +121,22 @@ void Iron::Draw(const CmdPool& data) {
     auto start = m_idx;
 
     // Loop until a statgechange and copy all data into Vertex/index buf
-    while (i < data.Size() && scissorOn == data.GetCmd(i)->ScissorOn &&
-           scissor == data.GetCmd(i)->ScissorRect &&
-           tex == data.GetCmd(i)->Tex) {
+    while (i < data.Size() /*&& scissorOn == data.GetCmd(i)->ScissorOn &&
+           scissor == data.GetCmd(i)->ScissorRect */
+           && tex == data.GetCmd(i)->Tex) {
       auto c = data.GetCmd(i);
 
-      if (!pCheckSize(c->IndexBuf.size(), c->VertexBuf.size())) {
-        throw Error("iron: too much draw data!!!" +
-                    std::format("\nIdx: {}\nVtx: {}", c->IndexBuf.size(),
-                                c->VertexBuf.size()));
+      if (!pCheckSize(c->IndexCount, c->VertexCount)) {
+        throw Error(
+            "iron: too much draw data!!!" +
+            std::format("\nIdx: {}\nVtx: {}", c->IndexCount, c->VertexCount));
       }
 
-      for (int j = 0; j < c->IndexBuf.size(); j++) {
-        m_ibuf[m_idx++] = m_vtx + c->IndexBuf[j];
+      for (int j = 0; j < c->IndexCount; j++) {
+        m_ibuf[m_idx++] = m_vtx + c->FirstIndex[j];
       }
-      for (int j = 0; j < c->VertexBuf.size(); j++) {
-        m_vbuf[m_vtx++] = std::move(c->VertexBuf[j]);
+      for (int j = 0; j < c->VertexCount; j++) {
+        m_vbuf[m_vtx++] = std::move(c->FirstVertex[j]);
       }
       i++;
     }
@@ -117,6 +145,7 @@ void Iron::Draw(const CmdPool& data) {
     tex->Bind();
     C3D::BufCfg<3>(m_vbuf.data(), sizeof(Vertex));
     C3D::DrawElements(m_idx - start, m_ibuf.data() + start);
+    __DC++;
   }
   C3D::DepthTest(true);
 }
@@ -222,6 +251,7 @@ Rect Iron::PrimLine(const fvec2& a, const fvec2& b, int thickness) {
 }
 
 void Iron::CmdQuad(Command* cmd, const Rect& q, const Rect& uv, ui color) {
+  cmd->PreAllocate(4, 6);
   cmd->Add(0).Add(1).Add(2);
   cmd->Add(0).Add(2).Add(3);
   cmd->Add(Vertex(q.BotRight(), uv.BotRight(), color));
@@ -232,6 +262,7 @@ void Iron::CmdQuad(Command* cmd, const Rect& q, const Rect& uv, ui color) {
 
 void Iron::CmdTriangle(Command* cmd, const fvec2& a, const fvec2& b,
                        const fvec2& c, ui color) {
+  cmd->PreAllocate(3, 3);
   cmd->Add(2).Add(1).Add(0);  // reverse cause otherwise invisible
   cmd->Add(Vertex(a, fvec2(0, 1), color));
   cmd->Add(Vertex(b, fvec2(1, 1), color));
@@ -266,6 +297,8 @@ void Iron::CmdConvexPolyFilled(Command* cmd, const std::vector<fvec2>& points,
   auto uv_tr = tex->Uv().TopRight();
   auto uv_bl = tex->Uv().BotLeft();
 
+  // New
+  cmd->PreAllocate(points.size(), (points.size() - 2) * 3);
   // Render
   for (int i = 2; i < (int)points.size(); i++) {
     cmd->Add(0).Add(i).Add(i - 1);
