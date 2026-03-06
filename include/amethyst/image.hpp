@@ -13,6 +13,8 @@ class Image {
     ABGR,    // bpp == 4
     BGRA,    // bpp == 4
     A8,      // bpp == 1 (not supported in laoding)
+    L8,      // bpp = 1 (not supported in loading)
+    LA4,     // bpp = 1 (not supported in loading)
   };
   Image() = default;
   Image(ksr path) { this->Load(path); }

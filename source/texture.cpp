@@ -27,6 +27,12 @@ GPU_TEXCOLOR image2TexFmt(const Image::Format& fmt) {
     case Image::A8:
       return GPU_A8;
       break;
+    case Image::L8:
+      return GPU_L8;
+      break;
+    case Image::LA4:
+      return GPU_LA4;
+      break;
     default:
       // Dummy
       throw std::runtime_error(
